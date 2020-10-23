@@ -65,7 +65,7 @@ It is a self contained Python program. Type:
 
 `python3 AstroPitography.py`
 
-into a terminal on your raspberry pi to run the program. Editing your `.bashrc` can allow for the program to begin on startup.
+into a terminal on your raspberry pi to run the program and start taking pictures and videos. Editing your `.bashrc` can allow for the program to begin on startup.
 
 <!-- ROADMAP -->
 ## Roadmap
