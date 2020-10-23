@@ -8,7 +8,7 @@
   <h3 align="center">AstroPitography</h3>
 
   <p align="center">
-    Astrophotography + raspberry pi HQ camera = AstroPitography
+    Astrophotography + Raspberry Pi HQ camera = AstroPitography
     <br />
     <a href="https://github.com/github_username/AstroPitography/issues">Request Feature</a>
   </p>
