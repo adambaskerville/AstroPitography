@@ -44,7 +44,7 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * When a picture is taken it will be visible next to the live preview. If it is a poor image it can be deleted from within the program.
 * The default save location can be selected from within the program window; handy for saving to USB stick etc... especially for large RAW files.
 * Timed video capturing.
-* The image format is RAW, preferred over .png which processes the image.
+* The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken.
 
 ### Built With
 
