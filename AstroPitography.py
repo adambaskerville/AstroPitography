@@ -1,40 +1,12 @@
 '''
     Name    : AstroPitography
-    Author  : Dr Adam Luke Baskerville
+    Author  : Adam Luke Baskerville
     Date    : 22-Oct-2020
     Version : 1-02
     
     Description
     -----------
-    This program provides a simple user interface to control the raspberry pi HQ camera for use in astrophotography. It makes use of opencv, raspistill and PySimpleGUI
-    
-    A variety of camera settings can be controlled including:
-    
-    * Brightness
-    * Contrast
-    * Saturation
-    * Sharpness
-    * Exposure (shutter speed in this instance)
-    * Time delay between images
-    
-    It is currently able to do the following:
-    
-    * Show a live preview of the camera view in the main window; useful for making sure something is in frame
-    * Allows for capturing of single images, multiple images with time delay and long exposure imaging
-    * When a picture is taken it will be visible next to the live video feed and if it is a poor image it can be deleted from within the program
-    * The default save location can also be selected from within the window; handy for saving to USB stick etc... especially for large RAW files
-    * Video capturing
-    * The image format is RAW, preffered over .png so no information is lost/processed
-    
-    This is still new (v1-02) and has not had much testing. More features will be added over time including:
-    
-    * Allow for greater variability in shutter speed (should be simple to implement)
-    * Improve framerate of live preview
-    * Test! (when the skies improve!)
-    * Improve video implementation
-    * Image stacking capability
-    * The ability to load camera presets for different objects (e.g. planetary, deep sky etc...)
-    * Implement PySimpleGUIWeb for easier access on multiple devices. This has been worked on but there are significant lag issues and issues with write permissions when saving and loading the images 
+    This program provides a simple user interface to control the raspberry pi HQ camera for use in astrophotography. It makes use of opencv, raspistill and PySimpleGUI 
 '''
 
 import os
