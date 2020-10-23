@@ -10,7 +10,7 @@
   <p align="center">
     Astrophotography + Raspberry Pi HQ camera = AstroPitography
     <br />
-    <a href="https://github.com/github_username/AstroPitography/issues">Request Feature</a>
+    <a href="https://github.com/adambaskerville/AstroPitography/issues">Request Feature</a>
   </p>
 </p>
 
