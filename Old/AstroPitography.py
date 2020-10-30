@@ -1,45 +1,12 @@
 '''
     Name    : AstroPitography
-    Author  : Dr Adam Luke Baskerville
+    Author  : Adam Luke Baskerville
     Date    : 22-Oct-2020
     Version : 1-02
     
     Description
     -----------
-    This program provides a simple user interface to control the raspberry pi HQ camera for use in astrophotography. It makes use of opencv, raspistill and PySimpleGUI
-    
-    A variety of camera settings can be controlled including:
-    
-    * Brightness
-    * Contrast
-    * Saturation
-    * Sharpness
-    * Exposure (shutter speed in this instance)
-    * Time delay between images
-    
-    It is currently able to do the following:
-    
-    * Show a live preview of the camera view in the main window; useful for making sure something is in frame
-    * Allows for capturing of single images, multiple images with time delay and long exposure imaging
-    * When a picture is taken it will be visible next to the live video feed and if it is a poor image it can be deleted from within the program
-    * The default save location can also be selected from within the window; handy for saving to USB stick etc... especially for large RAW files
-    * Video capturing
-    * The image format is RAW, preffered over .png so no information is lost/processed
-    
-    This is still new (v1-02) and has not had much testing. More features will be added over time including:
-    
-    * Allow for greater variability in shutter speed (should be simple to implement)
-    * Improve framerate of live preview
-    * Test! (when the skies improve!)
-    * Improve video implementation
-    * Image stacking capability
-    * The ability to load camera presets for different objects (e.g. planetary, deep sky etc...)
-    * Implement PySimpleGUIWeb for easier access on multiple devices. This has been worked on but there are significant lag issues and issues with write permissions when saving and loading the images 
-
-    If you want the program to start on startup add this to the bottom of .bashrc:
-    
-    
-    python3
+    This program provides a simple user interface to control the raspberry pi HQ camera for use in astrophotography. It makes use of opencv, raspistill and PySimpleGUI 
 '''
 
 import os
@@ -146,10 +113,6 @@ def main():
     ]
 
     controls_column1 = [
-        [sg.Text('Grey scale:', font=("Helvetica", 10), size=(10, 1)),
-        sg.Checkbox('', size=(5,1), enable_events=True, key='greyscale'),
-        sg.Text('Auto white balance:', font=("Helvetica", 10), size=(17, 1)),
-        sg.Checkbox('', size=(5,1), enable_events=True, key='whitebalance')],
         [sg.Text('Brightness', font=("Helvetica", 10), size=(20, 1)),               
         sg.Slider(range=(0, 100), orientation='h', size=(20, 20), default_value=default_brightness, key='brightness_slider')], 
         [sg.Text('Contrast', font=("Helvetica", 10), size=(20, 1)),      
@@ -183,13 +146,15 @@ def main():
               [sg.Button('Capture', size=(10, 1), font='Helvetica 14'),
                sg.Button('Record', size=(10, 1), font='Helvetica 14'),
                sg.Button('Defaults', size=(10, 1), font='Helvetica 14'),
-               sg.Button('Exit', size=(10, 1), font='Helvetica 14'),
-               sg.Text('Status:', size=(6,1), font=('Helvetica', 18)),
-               sg.Text('Idle', size=(8, 1), font=('Helvetica', 18), text_color='Red', key='output')]]
- 
+               sg.Button('Exit', size=(10, 1), font='Helvetica 14'), 
+               sg.Text('Progress:'),
+               sg.ProgressBar(1000, orientation='h', size=(10, 5), key='progress')]] # 1000 is a placeholder
+
     # create the window
     window = sg.Window('AstroPitography', layout, location=(0,0), keep_on_top=False).Finalize()
     #window.Maximize()
+
+    progress_bar = window.FindElement("progress")
 
     # ---===--- Event LOOP Read and display frames, operate the GUI --- #
     cap = cv2.VideoCapture(-1) # cap = cv2.VideoCapture(0) for laptop webcam
@@ -233,9 +198,6 @@ def main():
             return
         # record video
         elif event == 'Record':
-            # update the activity notification
-            window.FindElement('output').Update('Working...')
-            window.Refresh()
             # specify the name of the video save file
             video_save_file_name = "{}/Video_{}_{}s.avi".format(cam_folder_save, current_day_time, cam_vid_time)
             width        = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -250,21 +212,17 @@ def main():
                 ret, frame = cap.read()
 
                 if ret == True:
-                    # update the activity notification
-                    window['output'].update('Working...')
-                    
                     frame = cv2.flip(frame,0)
                     video_writer.write(frame)
+                    # update the progress bar
+                    progress_bar.UpdateBar(int(time.time() - start_time), cam_vid_time)
+
+            # reset the progress bar
+            progress_bar.UpdateBar(0, cam_vid_time)
 
             video_writer.release()
-            # reset the activity notification
-            window.FindElement('output').Update('Idle')
-            window.Refresh()
         # record image
         elif event == 'Capture':
-            # update the activity notification
-            window.FindElement('output').Update('Working...')
-            window.Refresh()
             # triggers long exposure
             if cam_exposure > 1:
                 # triggers multiple exposures
@@ -272,15 +230,6 @@ def main():
                     image_save_file_name = "{}/Image_{}_no:{}_LE_{}s.jpg".format(cam_folder_save, current_day_time, i, cam_exposure)
                     # setup the raspistill command
                     long_exposure = 'raspistill --nopreview -r -t 10 -md 3 -ex off -ag 1 --shutter {} -ISO 800 -st -o {}'.format(cam_exposure_convert, image_save_file_name)
-                    
-                    if values['greyscale'] is True:
-                        greyscale_option = ' -cfx 128:128' # settings for greyscale image
-                        long_exposure = long_exposure + greyscale_option # add option to raspistill command string
-                        
-                    if values['whitebalance'] is True:
-                        whitebalance_option = " -awb off -awbg '1.0,1.0'"
-                        long_exposure = long_exposure + whitebalance_option
-                        
                     # call out using subprocess
                     cap = call_raspistill(long_exposure, cap)
                     # update the still image with the most recent image taken. The image is resized to fit better into the GUI                   
@@ -292,31 +241,23 @@ def main():
                     # specify image file name
                     image_save_file_name = "{}/Image_{}_no:{}.jpg".format(cam_folder_save, current_day_time, i)
                     # setup the raspistill command
-                    raw_capture = 'raspistill -r -md 3 --brightness {} --contrast {} --saturation {} --sharpness {} -ISO 800 -st -o {}'.format(cam_brightness,
-                                                                                                                                                       cam_contrast,
-                                                                                                                                                       cam_saturation,
-                                                                                                                                                       cam_sharpness,
-                                                                                                                                                       image_save_file_name)
-                    if values['greyscale'] is True:
-                        greyscale_option = ' -cfx 128:128' # settings for greyscale image
-                        raw_capture = raw_capture + greyscale_option # add option to raspistill command string
-                        
-                    if values['whitebalance'] is True:
-                        whitebalance_option = " -awb off -awbg '1.0,1.0'"
-                        raw_capture = raw_capture + whitebalance_option
-                        
+                    raw_capture = 'raspistill --nopreview -r -md 3 --brightness {} --contrast {} --saturation {} --sharpness {} -ISO 800 -st -o {}'.format(cam_brightness,
+                                                                                                                                                           cam_contrast,
+                                                                                                                                                           cam_saturation,
+                                                                                                                                                           cam_sharpness,
+                                                                                                                                                           image_save_file_name)
                     # call out using subprocess
                     cap = call_raspistill(raw_capture, cap)
                     # this creates the time gap between images being taken using the value set by the user
                     time.sleep(cam_time_step)
+                    # update the progress bar
+                    progress_bar.UpdateBar(i, cam_no_images)
                     # update the still image with the most recent image taken. The image is resized to fit better into the GUI.
                     window['image'].update(data=convert_to_bytes(image_save_file_name, resize=default_image_size))
                     i += 1
                 i = 0
-
-            # reset the activity notification
-            window.FindElement('output').Update('Idle')
-            window.Refresh()
+                # reset the progress bar
+                progress_bar.UpdateBar(0, default_image_no)
         # if image is not good, pressing the delete button will remove it
         elif event == 'Delete':
             try:
