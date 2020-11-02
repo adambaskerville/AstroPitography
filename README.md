@@ -53,7 +53,7 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * [OpenCV](https://opencv.org/)
 * [Raspistill](https://www.raspberrypi.org/documentation/usage/camera/raspicam/raspistill.md)
 
-### Uses
+### Uses (Not endorsements or sponsors, just where I purchased them from)
 * [Raspberry Pi 3B+](https://thepihut.com/products/raspberry-pi-3-model-b-plus)
 * [Raspberry Pi HQ Camera](https://thepihut.com/products/raspberry-pi-high-quality-camera-module)
 
