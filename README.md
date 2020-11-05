@@ -40,12 +40,12 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
   * Exposure (shutter speed in this instance)
   * Time delay between images
 * Show a live preview of the camera view in the main window; useful for making sure something is in frame.
-* Toggle greyscale imaging and auto white balance correction.
+* Toggle greyscale imaging (useful if using colour filters) and auto white balance correction.
 * Allows for capturing of single images, multiple images with time delay and long exposure imaging.
 * When a picture is taken it will be visible next to the live preview. If it is a poor image it can be deleted from within the program.
 * The default save location can be selected from within the program window; handy for saving to USB stick etc... especially for large RAW files.
 * Timed video capturing.
-* The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken.
+* The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. The RAW image information is extracted from the jpg file and saved as a dng file using pydng.
 
 ### Built With
 
