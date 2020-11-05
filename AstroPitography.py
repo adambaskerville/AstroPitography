@@ -1,8 +1,8 @@
 '''
     Name    : AstroPitography
     Author  : Dr Adam Luke Baskerville
-    Date    : 22-Oct-2020
-    Version : 1-02
+    Date    : 05-Nov-2020
+    Version : 1-06
     
     Description
     -----------
@@ -26,7 +26,7 @@
     * Video capturing
     * The image format is RAW, preffered over .png so no information is lost/processed
     
-    This is still new (v1-02) and has not had much testing. More features will be added over time including:
+    This is still new (v1-05) and has not had much testing. More features will be added over time including:
     
     * Allow for greater variability in shutter speed (should be simple to implement)
     * Improve framerate of live preview
@@ -53,6 +53,7 @@ import PIL.Image
 import io
 import base64
 import subprocess
+from pydng.core import RPICAM2DNG
 from datetime import datetime
 #import PySimpleGUIWeb as sg
 
@@ -132,6 +133,7 @@ def main():
     default_saturation   = 0
     default_sharpness    = 0
     default_image_no     = 1
+    default_iso          = 800
     default_exposure     = 1
     default_time_step    = 2
     default_vid_time     = 10
@@ -139,17 +141,13 @@ def main():
     default_preview_size = 340 
     default_save_folder  = "{}/PiAstroCam".format(expanduser("~"))
 
-    # define the column layout for the GUI
-    image_column = [
+    # define the column layout b the GUI
+    image_column = [ 
         [sg.Image(filename='', key='image'),
         sg.Button('Delete', size=(10, 1), font='Helvetica 14')],
     ]
 
     controls_column1 = [
-        [sg.Text('Grey scale:', font=("Helvetica", 10), size=(10, 1)),
-        sg.Checkbox('', size=(5,1), enable_events=True, key='greyscale'),
-        sg.Text('Auto white balance:', font=("Helvetica", 10), size=(17, 1)),
-        sg.Checkbox('', size=(5,1), enable_events=True, key='whitebalance')],
         [sg.Text('Brightness', font=("Helvetica", 10), size=(20, 1)),               
         sg.Slider(range=(0, 100), orientation='h', size=(20, 20), default_value=default_brightness, key='brightness_slider')], 
         [sg.Text('Contrast', font=("Helvetica", 10), size=(20, 1)),      
@@ -161,6 +159,8 @@ def main():
     ]
 
     controls_column2 = [
+        [sg.Text('ISO', font=("Helvetica", 10), size=(20, 1)),               
+        sg.Slider(range=(100, 800), orientation='h', size=(20, 20), default_value=default_iso, key='iso_slider')],
         [sg.Text('Exposure', font=("Helvetica", 10), size=(20, 1)),               
         sg.Slider(range=(0, 200), orientation='h', size=(20, 20), default_value=default_exposure, key='exposure_slider')], 
         [sg.Text('Number of images', font=("Helvetica", 10), size=(20, 1)),               
@@ -171,12 +171,24 @@ def main():
         sg.Slider(range=(1, 100), orientation='h', size=(20, 20), default_value=default_vid_time, key='video_duration_slider')], 
     ]
 
+    extra_controls_column1 = [
+        [sg.Text('Grey scale:', font=("Helvetica", 10), size=(10, 1)),
+        sg.Checkbox('', size=(5,1), enable_events=True, key='greyscale'),
+        sg.Text('Auto white balance off:', font=("Helvetica", 10), size=(20, 1)),
+        sg.Checkbox('', size=(5,1), enable_events=True, key='whitebalance')],
+        [sg.Text('h flip:', font=("Helvetica", 10), size=(10, 1)),
+        sg.Checkbox('', size=(5,1), enable_events=True, key='hflip'),
+        sg.Text('v flip:', font=("Helvetica", 10), size=(20, 1)),
+        sg.Checkbox('', size=(5,1), enable_events=True, key='vflip')],
+    ]
+    
     # define the window layout
     layout = [[sg.Text('      Live Preview', size=(20, 1), justification='center', font='Helvetica 20'),
                sg.Text(' Most Recent Image', size=(30, 1), justification='center', font='Helvetica 20')],
               [sg.Image(filename='', key='video'),
                 sg.Column(image_column)],
-              [sg.Frame("Controls", layout=[[sg.Column(controls_column1), sg.Column(controls_column2)]])],      
+              [sg.Frame("Controls", layout=[[sg.Column(controls_column1), sg.Column(controls_column2)]])],
+              [sg.Frame("Extra Controls", layout=[[sg.Column(extra_controls_column1)]])],
               [sg.Text('Choose A Directory to Save Images and Videos', size=(50, 1))],      
               [sg.Text('Your Folder', size=(15, 1), auto_size_text=False, justification='right'),      
                sg.InputText('{}'.format(default_save_folder), key='save_folder'), sg.FolderBrowse()],      
@@ -199,6 +211,11 @@ def main():
     recording = True
     # this loads a placeholder black image before an image is taken. TODO: Implement a better way to do this
     placeholder_img = "/home/pi/PiAstroCam/blackimage.png"
+    #prev = 'raspistill --focus -t 0 -k'
+    #cap = call_raspistill(prev, cap)
+    
+    ret, frame = cap.read()
+    frame = imutils.resize(frame, width=default_preview_size)
     window['image'].update(data=convert_to_bytes(placeholder_img, resize=default_image_size))
     
     while True:
@@ -214,6 +231,7 @@ def main():
         cam_saturation  = int(values['saturation_slider'])    # Grabs the user set saturation value
         cam_sharpness   = int(values['sharpness_slider'])     # Grabs the user set sharpness value
         cam_exposure    = int(values['exposure_slider'])      # Grabs the user set exposure value
+        cam_iso         = int(values['iso_slider'])           # Grabs the user set ISO value
         cam_no_images   = int(values['no_images_slider'])     # Grabs the user set number of images to be taken
         cam_time_step   = int(values['time_step_slider'])     # Grabs the user set time increment between images
         cam_vid_time    = values['video_duration_slider']     # Grabs the user set video length
@@ -271,8 +289,16 @@ def main():
                 for i in range(cam_no_images):
                     image_save_file_name = "{}/Image_{}_no:{}_LE_{}s.jpg".format(cam_folder_save, current_day_time, i, cam_exposure)
                     # setup the raspistill command
-                    long_exposure = 'raspistill --nopreview -r -t 10 -md 3 -ex off -ag 1 --shutter {} -ISO 800 -st -o {}'.format(cam_exposure_convert, image_save_file_name)
+                    long_exposure = 'raspistill --nopreview -r -t 10 -md 3 -ex off -ag 1 --shutter {} -ISO {} -st -o {}'.format(cam_exposure_convert, cam_iso, image_save_file_name)
                     
+                    if values['hflip'] is True:
+                        hflip_option = ' --hflip' # setting for hflip
+                        long_exposure = long_exposure + hflip_option # add option to raspistill command string
+                        
+                    if values['vflip'] is True:
+                        vflip_option = ' --vflip' # setting for vflip
+                        long_exposure = long_exposure + vflip_option # add option to raspistill command string
+                        
                     if values['greyscale'] is True:
                         greyscale_option = ' -cfx 128:128' # settings for greyscale image
                         long_exposure = long_exposure + greyscale_option # add option to raspistill command string
@@ -292,11 +318,20 @@ def main():
                     # specify image file name
                     image_save_file_name = "{}/Image_{}_no:{}.jpg".format(cam_folder_save, current_day_time, i)
                     # setup the raspistill command
-                    raw_capture = 'raspistill -r -md 3 --brightness {} --contrast {} --saturation {} --sharpness {} -ISO 800 -st -o {}'.format(cam_brightness,
+                    raw_capture = 'raspistill --nopreview -t 10 -r -md 3 --brightness {} --contrast {} --saturation {} --sharpness {} -ISO {} -st -o {}'.format(cam_brightness,
                                                                                                                                                        cam_contrast,
                                                                                                                                                        cam_saturation,
                                                                                                                                                        cam_sharpness,
+                                                                                                                                                       cam_iso,
                                                                                                                                                        image_save_file_name)
+                    if values['hflip'] is True:
+                        hflip_option = ' --hflip' # setting for hflip
+                        raw_capture = raw_capture + hflip_option # add option to raspistill command string
+                        
+                    if values['vflip'] is True:
+                        vflip_option = ' --vflip' # setting for vflip
+                        raw_capture = raw_capture + vflip_option # add option to raspistill command string
+                        
                     if values['greyscale'] is True:
                         greyscale_option = ' -cfx 128:128' # settings for greyscale image
                         raw_capture = raw_capture + greyscale_option # add option to raspistill command string
@@ -313,14 +348,21 @@ def main():
                     window['image'].update(data=convert_to_bytes(image_save_file_name, resize=default_image_size))
                     i += 1
                 i = 0
-
+            
+            # automatically convert the raw data contained in the jpg file into a dng file using pydng
+            raw_dng_convert = RPICAM2DNG()
+            image_dng_filename = raw_dng_convert.convert(image_save_file_name)
+            
+            # remove the original jpg image to save space
+            os.remove(image_save_file_name)
+            
             # reset the activity notification
             window.FindElement('output').Update('Idle')
             window.Refresh()
         # if image is not good, pressing the delete button will remove it
         elif event == 'Delete':
             try:
-                os.remove(image_save_file_name)
+                os.remove(image_dng_filename)
                 placeholder_img = "/home/pi/PiAstroCam/blackimage.png"
                 window['image'].update(data=convert_to_bytes(placeholder_img, resize=default_image_size))
             except:
@@ -331,13 +373,16 @@ def main():
             window.FindElement('brightness_slider').Update(default_brightness)
             window.FindElement('contrast_slider').Update(default_contrast)     
             window.FindElement('saturation_slider').Update(default_saturation)    
-            window.FindElement('sharpness_slider').Update(default_sharpness)     
-            window.FindElement('exposure_slider').Update(default_exposure)   
+            window.FindElement('sharpness_slider').Update(default_sharpness)    
+            window.FindElement('exposure_slider').Update(default_exposure)
+            window.FindElement('iso_slider').Update(default_iso)
             window.FindElement('no_images_slider').Update(default_image_no)   
             window.FindElement('time_step_slider').Update(default_time_step)   
             window.FindElement('video_duration_slider').Update(default_vid_time)    
 
         if recording:
+            #prev = 'raspistill --focus -p '0, 0, 300, 300' -t 0'
+            #cap = call_raspistill(prev, cap)
             ret, frame = cap.read()
             frame = imutils.resize(frame, width=default_preview_size)
             imgbytes = cv2.imencode('.png', frame)[1].tobytes()
