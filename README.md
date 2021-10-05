@@ -45,7 +45,7 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * When a picture is taken it will be visible next to the live preview. If it is a poor image it can be deleted from within the program.
 * The default save location can be selected from within the program window; handy for saving to USB stick etc... especially for large RAW files.
 * Timed video capturing.
-* The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. The RAW image information is extracted from the jpg file and saved as a dng file using pydng.
+* The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. An option is provided to extract the RAW image information from the .jpg file and saved as a dng file using PiDNG.
 
 ### Built With
 
@@ -66,7 +66,7 @@ It is a self contained Python program. Type:
 
 `python3 AstroPitography.py`
 
-into a terminal on your raspberry pi to run the program and start taking pictures and videos. Editing your `.bashrc` can allow for the program to begin on startup.
+into a terminal on your raspberry pi to run the program and start taking pictures and videos. Editing your `.bashrc` can allow for the program to begin on startup. You can specify the image save location from the menu button at the top of the window.
 
 <!-- ROADMAP -->
 ## Roadmap
