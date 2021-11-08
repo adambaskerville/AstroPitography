@@ -79,6 +79,20 @@ into a terminal on your raspberry pi to run the program and start taking picture
  * Automatic image stacking capability.
  * Implement PySimpleGUIWeb for easier access on multiple devices. Work has started on this but there are significant lag issues with the preview, and issues with write permissions when saving and loading the images. 
 
+## Examples
+
+The following images were taken by Herbert Fu:
+
+**M45 galaxy:**
+
+![M45](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M45.jpg)
+
+**M31 galaxy:**
+![M31](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M31.jpg)
+
+**Jupiter:**
+![Jupiter](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/Jupiter.jpg)
+
 <!-- CONTACT -->
 ## Contact
 
