@@ -81,16 +81,18 @@ into a terminal on your raspberry pi to run the program and start taking picture
 
 ## Examples
 
-The following images were taken by Herbert Fu:
+The following lovely images were taken by Herbert Fu:
 
 **M45 galaxy:**
 
 ![M45](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M45.jpg)
 
 **M31 galaxy:**
+
 ![M31](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M31.jpg)
 
 **Jupiter:**
+
 ![Jupiter](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/Jupiter.jpg)
 
 <!-- CONTACT -->
