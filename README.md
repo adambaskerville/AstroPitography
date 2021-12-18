@@ -40,6 +40,7 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
   * Exposure (shutter speed in this instance)
   * Time delay between images
 * Show a live preview of the camera view in the main window; useful for making sure something is in frame.
+* Ability to enlarge and shrink the live preview using GUI buttons.
 * Toggle greyscale imaging (useful if using colour filters) and auto white balance correction.
 * Allows for capturing of single images, multiple images with time delay and long exposure imaging.
 * When a picture is taken it will be visible next to the live preview. If it is a poor image it can be deleted from within the program.
@@ -68,16 +69,37 @@ It is a self contained Python program. Type:
 
 into a terminal on your raspberry pi to run the program and start taking pictures and videos. Editing your `.bashrc` can allow for the program to begin on startup. You can specify the image save location from the menu button at the top of the window.
 
+**Note:**
+
+My Raspberry Pi's resolution was set to 1600 x 900, 16:9 which you may want to replicate when using the program. I plan to generalize the code for any resolution in the future.
+## Dependencies
+
+Below are some key dependencies and library versions to run AstroPitography: 
+
+`picamera==1.13`
+
+`pidng==3.4.7`
+
+`Pillow==8.4.0`
+
+`PySimpleGUI==4.55.1`
+
 <!-- ROADMAP -->
 ## Roadmap
 
  * More testing (when the skies finally improve here in rainy UK!)
  * Allow for fractional variability in shutter speed (simple to implement)
- * Improve framerate of live preview.
+ * Improve framerate of live preview. [**completed**]
  * Improve features of video implementation.
  * The ability to load camera presets for different objects (e.g. planetary, deep sky etc...)
  * Automatic image stacking capability.
- * Implement PySimpleGUIWeb for easier access on multiple devices. Work has started on this but there are significant lag issues with the preview, and issues with write permissions when saving and loading the images. 
+
+<!-- CONTACT -->
+## Contact
+
+Adam Baskerville - [@AdamBask](https://twitter.com/AdamBask) - ab695@sussex.ac.uk
+
+Project Link: [https://github.com/adambaskerville/AstroPitography](https://github.com/adambaskerville/AstroPitography)
 
 ## Examples
 
@@ -95,9 +117,6 @@ The following lovely images were taken by Herbert Fu:
 
 ![Jupiter](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/Jupiter.jpg)
 
-<!-- CONTACT -->
-## Contact
+This is an image of the moon I captured:
 
-Adam Baskerville - [@AdamBask](https://twitter.com/AdamBask) - ab695@sussex.ac.uk
-
-Project Link: [https://github.com/adambaskerville/AstroPitography](https://github.com/adambaskerville/AstroPitography)
+![Moon](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/Moon_stitch.png)
