@@ -115,7 +115,7 @@ The following, lovely images were taken by Herbert Fu:
 
 **M32 galaxy:**
 
-![M32](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M32.jpg)
+![M32](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M42.jpg)
 
 **Jupiter:**
 
