@@ -103,7 +103,7 @@ Project Link: [https://github.com/adambaskerville/AstroPitography](https://githu
 
 ## Examples
 
-The following lovely images were taken by Herbert Fu:
+The following, lovely images were taken by Herbert Fu:
 
 **M45 galaxy:**
 
@@ -113,9 +113,14 @@ The following lovely images were taken by Herbert Fu:
 
 ![M31](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M31.jpg)
 
+**M32 galaxy:**
+
+![M32](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/M32.jpg)
+
 **Jupiter:**
 
 ![Jupiter](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/Jupiter.jpg)
+
 
 This is an image of the moon I captured:
 
