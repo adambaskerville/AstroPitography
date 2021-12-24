@@ -43,6 +43,7 @@
     PySimpleGUI == 4.55.1
 '''
 import os
+import sys
 import io
 import time
 import PySimpleGUI as sg
@@ -495,7 +496,8 @@ def main():
                 time.sleep(1)
             
             if event == "Crosshair On":
-                img = Image.open('crosshair.png').convert('RGBA')
+                
+                img = Image.open(os.path.join(os.path.dirname(sys.argv[0]),'crosshair.png')).convert('RGBA')
                
                 preview_overlay(camera, (width,height), img)
             
