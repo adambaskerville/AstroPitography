@@ -2,12 +2,12 @@
 '''
     Name    : AstroPitography
     Author  : Dr Adam Luke Baskerville
-    Date    : 23-Dec-2021
+    Date    : 18-Dec-2021
     Version : 1-05
     
     Description
     -----------
-    This program provides a simple user interface to control the raspberry pi HQ camera for use in astrophotography.
+    This program provides a simple user interface to control the raspberry pi HQ camera for use in astrophotography. It makes use of opencv, raspistill and PySimpleGUI
     
     A variety of camera settings can be controlled including:
     
@@ -22,25 +22,21 @@
     
     * Show a live preview of the camera view; useful for making sure something is in frame
     * Allows for capturing of single images, multiple images with time delay and long exposure imaging
-    * When a picture is taken it will be viewable by clicking the 'Menu' button and clicking 'Last Image'
-        * if it is a poor quality image it can be deleted by clicking 'Delete'
-    * The default save location can also be selected from within the window
-        * handy for saving to USB stick etc... especially for large RAW files
+    * When a picture is taken it will be viewable by clicking the 'Menu' button and clicking 'Last Image' and if it is a poor image it can be deleted by clicking 'Delete'
+    * The default save location can also be selected from within the window; handy for saving to USB stick etc... especially for large RAW files
     * Video capturing of specified length
     * The image format is RAW, preferred over .png so no information is lost/processed
+    
+    More features will be added over time including:
+    
+    * Allow for greater variability in shutter speed (should be simple to implement)
+    * Test! (when the skies improve!)
+    * Improve video implementation
+    * Image stacking capability
+    * The ability to load camera presets for different objects (e.g. planetary, deep sky etc...)
 
-    Auto Start
-    ----------
     If you want the program to start on startup add this to the bottom of .bashrc:
     
-    python3 /home/pi/AstroPitography/AstroPitography.py
-    
-    Dependencies
-    ------------
-    picamera == 1.13
-    pidng == 3.4.7
-    Pillow == 8.4.0
-    PySimpleGUI == 4.55.1
 '''
 import os
 import io
@@ -52,6 +48,11 @@ import picamera
 from pidng.core import RPICAM2DNG
 from datetime import datetime
 from pathlib import Path
+
+sg.SetOptions(
+    auto_size_text=True,
+    auto_size_buttons=True
+)
 
 # get the home directory
 home = str(Path.home())
@@ -68,9 +69,14 @@ sg.SetOptions(element_padding=(0, 0),
 # grab the resolution of the screen the program is being run on
 SCREEN_WIDTH, SCREEN_HEIGHT = sg.Window.get_screen_size()
 
+# default font size for text elements
+GUI_TEXT_SIZE = (int(SCREEN_WIDTH/60), 1)
+
+# default size for spin box elements
+SPIN_SIZE = (int(SCREEN_WIDTH/35), int(SCREEN_WIDTH/35))
+
 # put all key parameters in their own class, Parameters
 class Parameters:
-    # default image settings
     default_brightness      = 50
     default_contrast        = 0 
     default_saturation      = 0
@@ -83,22 +89,20 @@ class Parameters:
     default_preview_size    = (int(SCREEN_HEIGHT/2), int(SCREEN_HEIGHT/2))
     default_save_folder     = "{}/images".format(os.getcwd())
     default_save_folder_vid = "{}/videos".format(os.getcwd())
-    default_last_image      = "blackimage.png" # black frame to fill the last image menu popout
-    # other options
-    DNG_convert             = False # default flag for image DNG conversion
-    pad_x                   = 5     # default horizontal padding amount around elements
-    pad_y                   = 5     # default vertical padding amount around elements
-    font_size               = 12    # font size for text elements in the GUI
-    GUI_TEXT_SIZE           = (int(SCREEN_WIDTH/85), 1) # default size for text elements
-    
+    default_last_image      = "blackimage.png"
+    scaling                 = None
+    DNG_convert             = False
+    pad_y                   = 5 # default vertical padding amount around elements
+    font_size               = 12 
+
 def convert_to_DNG(image_save_file_name):
     '''
     This function will crate a DNG image from the .jpg + .raw data using PiDNG
 
     Parameters
     ----------
-    image_save_file_name : str
-                           a string filename
+    file_or_bytes : str
+                    a string filename
 
     Returns
     -------
@@ -140,40 +144,38 @@ def create_layout(parameters):
 
     # controls column 1 holds the camera image settings, e.g. brightness
     controls_column1 = [
-        [sg.Text('Brightness', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE, pad=(0,p.pad_y)),                
-         sg.Spin([i for i in range(0, 100)], initial_value=p.default_brightness, font=('Helvetica', 20), key='brightness_slider', pad=(0,p.pad_y))],
-        [sg.Text('Contrast', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE),      
-         sg.Spin([i for i in range(-100, 100)], initial_value=p.default_contrast, font=('Helvetica', 20), key='contrast_slider', pad=(0,p.pad_y))],
-        [sg.Text('Saturation', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE),               
-         sg.Spin([i for i in range(-100, 100)], initial_value=p.default_saturation, font=('Helvetica', 20), key='saturation_slider', pad=(0,p.pad_y))],
-        [sg.Text('Sharpness', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE),               
-         sg.Spin([i for i in range(0, 100)], initial_value=p.default_sharpness, font=('Helvetica', 20), key='sharpness_slider', pad=(0,p.pad_y))], 
+        [sg.Text('Brightness', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE, pad=(0,p.pad_y)),                
+        sg.Spin([i for i in range(0, 100)], initial_value=p.default_brightness, font=('Helvetica', 20), key='brightness_slider', pad=(0,p.pad_y))],
+        [sg.Text('Contrast', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE),      
+        sg.Spin([i for i in range(-100, 100)], initial_value=p.default_contrast, font=('Helvetica', 20), key='contrast_slider', pad=(0,p.pad_y))],
+        [sg.Text('Saturation', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE),               
+        sg.Spin([i for i in range(-100, 100)], initial_value=p.default_saturation, font=('Helvetica', 20), key='saturation_slider', pad=(0,p.pad_y))],
+        [sg.Text('Sharpness', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE),               
+        sg.Spin([i for i in range(0, 100)], initial_value=p.default_sharpness, font=('Helvetica', 20), key='sharpness_slider', pad=(0,p.pad_y))], 
     ]
 
     # controls column 2 holds the other options such as no. of images, shutter speed etc...
     controls_column2 = [
-        [sg.Text('Exposure / s', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
-         sg.Spin([i for i in range(0, 200)], initial_value=p.default_exposure, font=('Helvetica', 20), key='exposure_slider', pad=(0,p.pad_y))],
-        [sg.Text('Number of images', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
-         sg.Spin([i for i in range(1, 100)], initial_value=p.default_image_no, font=('Helvetica', 20), key='no_images_slider', pad=(0,p.pad_y))],
-        [sg.Text('Time step / s', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
-         sg.Spin([i for i in range(0, 100)], initial_value=p.default_time_step, font=('Helvetica', 20), key='time_step_slider', pad=(0,p.pad_y))],
-        [sg.Text('Video duration / s', font=("Helvetica", p.font_size, "bold"), size=p.GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
-         sg.Spin([i for i in range(1, 100)], initial_value=p.default_vid_time, font=('Helvetica', 20), key='video_duration_slider', pad=(0,p.pad_y))], 
+        [sg.Text('Exposure / s', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
+        sg.Spin([i for i in range(0, 200)], initial_value=p.default_exposure, font=('Helvetica', 20), key='exposure_slider', pad=(0,p.pad_y))],
+        [sg.Text('Number of images', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
+        sg.Spin([i for i in range(1, 100)], initial_value=p.default_image_no, font=('Helvetica', 20), key='no_images_slider', pad=(0,p.pad_y))],
+        [sg.Text('Time step / s', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
+        sg.Spin([i for i in range(0, 100)], initial_value=p.default_time_step, font=('Helvetica', 20), key='time_step_slider', pad=(0,p.pad_y))],
+        [sg.Text('Video duration / s', font=("Helvetica", p.font_size, "bold"), size=GUI_TEXT_SIZE, pad=(0,p.pad_y)),               
+        sg.Spin([i for i in range(1, 100)], initial_value=p.default_vid_time, font=('Helvetica', 20), key='video_duration_slider', pad=(0,p.pad_y))], 
     ]
 
     # controls column 3 holds the large buttons for the program which control image capture etc...
     controls_column3 = [
         [sg.Button('Capture', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y)),
-         sg.Button('Record', size=(10, 1), font='Helvetica 14', pad=(p.pad_x,p.pad_y))],
+         sg.Button('Record', size=(10, 1), font='Helvetica 14')],
         [sg.Button('- Resize -', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y)),
-         sg.Button('+ Resize +', size=(10, 1), font='Helvetica 14', pad=(p.pad_x,p.pad_y)),
-         ],
-        [sg.Button('Crosshair On', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y)),
-         sg.Button('Crosshair Off', size=(10, 1), font='Helvetica 14', pad=(p.pad_x,p.pad_y)),
+         sg.Button('+ Resize +', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y)),
+         #sg.Button('Crosshair', size=(10, 1), font='Helvetica 14')
          ],
         [sg.Button('Defaults', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y)),
-         sg.Button('Exit', size=(10, 1), font='Helvetica 14', pad=(p.pad_x,p.pad_y))],
+         sg.Button('Exit', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y))],
         [sg.Text('Status:', size=(6,1), font=('Helvetica', 18), pad=(0,p.pad_y)),
          sg.Text('Idle', size=(8, 1), font=('Helvetica', 18), text_color='Red', key='output', pad=(0,p.pad_y))],
     ]
@@ -181,11 +183,11 @@ def create_layout(parameters):
     # controls column 4 holds the options which can be toggled included DNG conversion etc...
     controls_column4 = [
         [sg.Text('Grey scale:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
-         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='greyscale', pad=(0,p.pad_y))],
+        sg.Checkbox('', size=(int(10), 1), enable_events=True, key='greyscale', pad=(0,p.pad_y))],
         [sg.Text('White balance:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
-         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='whitebalance', pad=(0,p.pad_y))],
+        sg.Checkbox('', size=(int(10), 1), enable_events=True, key='whitebalance', pad=(0,p.pad_y))],
         [sg.Text('Convert to DNG:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
-         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='convertdng', pad=(0,p.pad_y))],
+        sg.Checkbox('', size=(int(10), 1), enable_events=True, key='convertdng', pad=(0,p.pad_y))],
     ]
 
     # define the window layout
@@ -232,28 +234,20 @@ def create_window(layout):
 def create_image_window(image):
     '''
     This is the function that builds the image window to show the last image
-    
-    To view the image it must first be converted and saved as a .png
-    Then it is reopened in the image viewier in pysimplegui
-    
-    TODO: Improve this functionality without the need to save the image
 
-    Parameters
-    ----------
-    image : str
-            The path and name of the last image captured
-    
     Returns
     -------
     window : Window object
              The GUI window with all specified elements displayed
     '''
-    # set the default size of the last image and image window
-    image_window_size = (640,480)
+    # to view the image it must first be converted and saved as a .png
+    # then it is reopened in the image viewier in pysimplegui
+    # TODO: Improve this functionality without the need to save the image
+    
     # open the original raw image
     pil_image = Image.open(image)
     # resize the image so it can be previewed and does not cover the entire screen
-    resizedImage = pil_image.resize(image_window_size, Image.ANTIALIAS)
+    resizedImage = pil_image.resize((300,300), Image.ANTIALIAS)
     # create a bytes object
     png_bio = io.BytesIO()
     # save the image as a png image
@@ -262,12 +256,11 @@ def create_image_window(image):
     png_data = png_bio.getvalue()
     
     # create the window and show the converted last image taken
-    layout = [[sg.Image(data=png_data, size=image_window_size)],
-              [sg.Button('Delete', font=("Helvetica", 10), size=(int(SCREEN_WIDTH/90), 1)),
-               sg.Button('Return', font=("Helvetica", 10), size=(int(SCREEN_WIDTH/90), 1), pad=(5,0))]]
+    layout = [[sg.Image(data=png_data, size=(300,300))],
+              [sg.Button('Delete', font=("Helvetica", 10), size=GUI_TEXT_SIZE)]]
     
     # give the window a title
-    window = sg.Window("Last Image", layout, location=(1280,0))
+    window = sg.Window("Last Image", layout)
 
     while True:
         event, values = window.read()
@@ -284,88 +277,10 @@ def create_image_window(image):
             except:
                 print("File not found, continuing.")
                 pass
-        elif event == "Return" or event == sg.WIN_CLOSED:
+        elif event == "Exit" or event == sg.WIN_CLOSED:
             break
         
     window.close()
-
-def _pad(resolution, width=32, height=16):
-    '''
-    pads the specified resolution up to the nearest multiple of *width* and *height*
-    this is needed because overlays require padding to the camera's block size (32x16)
-    
-    Parameters
-    ----------
-    resolution : tuple
-                 The size of the image to be overlayed on the live preview
-    
-    width  : int
-             The default width
-            
-    height : int
-             The default height
-             
-    Returns
-    -------
-    resolution_tuple : tuple
-                       Tuple containing correctly scaled width and height of the overlay image to use with the live preview
-
-    '''
-    
-    return (
-        ((resolution[0] + (width - 1)) // width) * width,
-        ((resolution[1] + (height - 1)) // height) * height,
-    )
-
-def remove_overlays(camera):
-    '''
-    This function removes any overlays currently being displayed on the live preview
-    
-    Parameters
-    ----------
-    camera : picamera.camera.PiCamera
-             The picamera camera object
-    
-    Returns
-    -------
-    None
-    '''
-    # remove all overlays from the camera preview
-    for o in camera.overlays:
-        camera.remove_overlay(o)
-
-def preview_overlay(camera=None, resolution=None, overlay=None):
-    '''
-    This function actually overlays the image on the live preview
-    
-    Parameters
-    ----------
-    camera     : picamera.camera.PiCamera
-                 The picamera camera object
-             
-    resolution : tuple
-                 The width and height of the window containing the overlay image
-    
-    overlay    : PIL.Image.Image
-                 The overlay image object
-    
-    Returns
-    -------
-    None
-    '''
-    # remove all overlays
-    remove_overlays(camera)
-    
-    # pad it to the right resolution
-    pad = Image.new('RGBA', _pad(overlay.size))
-    pad.paste(overlay, (0, 0), overlay)
-    
-    # add the overlay
-    overlay = camera.add_overlay(pad.tobytes(), size=overlay.size)
-    overlay.fullscreen = False
-    overlay.window = (0, 0, resolution[0], resolution[1])
-    overlay.alpha = 128
-    overlay.layer = 3
     
 def main():
     '''
@@ -409,7 +324,6 @@ def main():
     
     # start the preview
     with picamera.PiCamera(resolution=(3280,2464)) as camera:
-        #camera.start_preview(resolution=(640,480), fullscreen=False, window=(0,0,640,480))
         camera.start_preview(resolution=(1440,1080), fullscreen=False, window=(0,0,640,480))
         time.sleep(1)
         
@@ -493,15 +407,29 @@ def main():
                 camera.start_preview(resolution=(width,height), fullscreen=False, window=(0,0,width,height))
                 # add a short pause to allow the preview to load correctly
                 time.sleep(1)
-            
-            if event == "Crosshair On":
+            '''
+            if event == "Crosshair":
                 img = Image.open('crosshair.png').convert('RGBA')
                
-                preview_overlay(camera, (width,height), img)
-            
-            if event == "Crosshair Off":
-                remove_overlays(camera)
+                # Create an image padded to the required size with
+                # mode 'RGB'
+                pad = Image.new('RGBA', (
+                    ((img.size[0] + 31) // 32) * 32,
+                    ((img.size[1] + 15) // 16) * 16,
+                    ))
                 
+                # Paste the original image into the padded one
+                pad.paste(img, (0, 0), img)
+                # Add the overlay with the padded image as the source,
+                # but the original image's dimensions
+                o = camera.add_overlay(pad.tobytes(), size=img.size)
+                # By default, the overlay is in layer 0, beneath the
+                # preview (which defaults to layer 2). Here we make
+                # the new overlay semi-transparent, then move it above
+                # the preview
+                o.alpha = 128
+                o.layer = 3
+            ''' 
             # record video
             if event == 'Record':
                 # update the activity notification
@@ -536,16 +464,9 @@ def main():
                 # turn on the grey scale option if it is toggled
                 if values['greyscale'] is True:
                     camera.color_effects = (128,128)
-                else:
-                    camera.color_effects = None
                 
                 # turn on the white balance option if it is toggled
-                # note in picamera this is already set to auto
-                # in the old version which did not use picamera this was not the case
-                # TODO: Remove or replace with another option
                 if values['whitebalance'] is True:
-                    camera.awb_mode='auto'
-                else:
                     camera.awb_mode='auto'
         
                 # triggers long exposure
@@ -604,7 +525,7 @@ def main():
                 window.FindElement('output').Update('Idle')
                 window.Refresh()
 
-            # reset the camera settings to the default values
+            # reset the camera settings to the default values. TODO: Add these to a dictionary at some point for easier access
             elif event == 'Defaults':
                 window.FindElement('brightness_slider').Update(Parameters.default_brightness)
                 window.FindElement('contrast_slider').Update(Parameters.default_contrast)     
@@ -615,5 +536,5 @@ def main():
                 window.FindElement('time_step_slider').Update(Parameters.default_time_step)   
                 window.FindElement('video_duration_slider').Update(Parameters.default_vid_time)    
 
-# run the main function
+# Run the main function
 main()

@@ -21,7 +21,9 @@
   * [Built With](#built-with)
   * [Uses](#uses)
 * [Getting Started](#getting-started)
+* [Dependencies](#dependencies)
 * [Roadmap](#roadmap)
+* [Examples](#examples)
 
 <!-- ABOUT THE PROJECT -->
 ## About AstroPitography
@@ -30,7 +32,7 @@
 
 Astrophotography is an expensive pastime, scopes, driven mounts, cameras, eyepieces, etc... I have always enjoyed squeezing as much performance out of more limited hardware to see what the end results can be; so when the **£50** Raspberry Pi High Quality camera was released I wanted to see how it handles astrophotography. It will certainly not beat a top of the line DSLR or a ZWO camera which are several orders of magnitude more expensive and refined, but I wanted to see what can be achieved. I wrote this simple Python program to act as a basic GUI for when I am out with my telescope. The Raspberry Pi 3B+ and HQ camera were mounted together and using a 1.25 inch to C adapter sits in the telescope eyepiece position. I set up the Raspberry Pi to act as a wireless access point and connect to its network via VNC on my phone to conveniently interface with the GUI. A small Raspberry Pi screen will also work great or just hooking it up to a regular monitor.
 
-I had originally used stellarmate with kstars etc... but wanted a simpler way to interface with the HQ camera. This is only the first iteration of the program which currently has the following features:
+I had originally used stellarmate with kstars etc... but wanted a simpler way to interface with the HQ camera. This is an early implementation of the program which currently has the following features:
 
 * Control important settings of the camera:
   * Brightness
@@ -41,18 +43,21 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
   * Time delay between images
 * Show a live preview of the camera view in the main window; useful for making sure something is in frame.
 * Ability to enlarge and shrink the live preview using GUI buttons.
+* Ability to overlay a crosshair on the live preview, useful for alignment.
 * Toggle greyscale imaging (useful if using colour filters) and auto white balance correction.
 * Allows for capturing of single images, multiple images with time delay and long exposure imaging.
-* When a picture is taken it will be visible next to the live preview. If it is a poor image it can be deleted from within the program.
+* When a picture is taken it is visible from the top menu. 
+  * If it is a poor image it can be deleted from within the program.
 * The default save location can be selected from within the program window; handy for saving to USB stick etc... especially for large RAW files.
 * Timed video capturing.
-* The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. An option is provided to extract the RAW image information from the .jpg file and saved as a dng file using PiDNG.
+* The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. 
+  * An option is provided to extract the RAW image information from the .jpg file and saved as a dng file using PiDNG.
 
 ### Built With
 
 * [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/)
-* [OpenCV](https://opencv.org/)
-* [Raspistill](https://www.raspberrypi.org/documentation/usage/camera/raspicam/raspistill.md)
+* [Pillow](https://pillow.readthedocs.io/en/stable/)
+* [Picamera](https://picamera.readthedocs.io/en/release-1.13/)
 
 ### Uses (Not endorsements or sponsors, just where I purchased them from)
 * [Raspberry Pi 3B+](https://thepihut.com/products/raspberry-pi-3-model-b-plus)
