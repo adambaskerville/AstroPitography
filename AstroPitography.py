@@ -594,8 +594,8 @@ def main():
             
             # run the plate solver
             if event == 'Where am I?':
-                #plate_solver(t3, Parameters.default_last_image)
-                plate_solver(t3, "tetra3/test_data/2019-07-29T204726_Alt60_Azi45_Try1.tiff")
+                plate_solver(t3, Parameters.default_last_image)
+                #plate_solver(t3, "tetra3/test_data/2019-07-29T204726_Alt60_Azi45_Try1.tiff")
                 
             # run the image stacking capability
             if event == 'Stacking Wizard':
