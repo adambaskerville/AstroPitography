@@ -44,6 +44,9 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * Show a live preview of the camera view in the main window; useful for making sure something is in frame.
 * Ability to enlarge and shrink the live preview using GUI buttons.
 * Ability to overlay a crosshair on the live preview, useful for alignment.
+* Automatic plate solving using ESAs lost in space [tetra3](https://github.com/esa/tetra3) algorithm.
+* Ability to set Raspberry Pi time and data from within the GUI.
+  * Very useful for headless setups where WiFi cannot be accessed.
 * Toggle greyscale imaging (useful if using colour filters) and auto white balance correction.
 * Allows for capturing of single images, multiple images with time delay and long exposure imaging.
 * When a picture is taken it is visible from the top menu. 
@@ -58,6 +61,7 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/)
 * [Pillow](https://pillow.readthedocs.io/en/stable/)
 * [Picamera](https://picamera.readthedocs.io/en/release-1.13/)
+* [tetra3](https://github.com/esa/tetra3)
 
 ### Uses (Not endorsements or sponsors, just where I purchased them from)
 * [Raspberry Pi 3B+](https://thepihut.com/products/raspberry-pi-3-model-b-plus)
@@ -97,7 +101,7 @@ Below are some key dependencies and library versions to run AstroPitography:
  * Improve framerate of live preview. [**completed**]
  * Improve features of video implementation.
  * The ability to load camera presets for different objects (e.g. planetary, deep sky etc...)
- * Automatic image stacking capability.
+ * Automatic image stacking capability. [**In progress**]
 
 <!-- CONTACT -->
 ## Contact
