@@ -2,7 +2,7 @@
 '''
     Name    : AstroPitography
     Author  : Dr Adam Luke Baskerville
-    Date    : 23-Dec-2021
+    Date    : 27-Dec-2021
     Version : 1-05
     
     Description
@@ -52,6 +52,7 @@ from time import sleep
 import picamera
 from pidng.core import RPICAM2DNG
 from datetime import datetime
+from tetra3 import Tetra3
 from pathlib import Path
 
 # get the home directory
@@ -132,7 +133,9 @@ def create_layout(parameters):
     p=parameters
 
     # ------ Menu Definition ------ #      
-    menu_def = [['Menu', ['Last Image', 'Save Location', 'Exit']]]     
+    menu_def = [['Menu', ['Last Image', 'Save Location', 'Exit']],
+                ['Stacking', ['Stacking Wizard']],
+                ['Date-Time',['Set Date-Time']]]     
 
     # define the column layout for the GUI
     image_column = [
@@ -174,7 +177,8 @@ def create_layout(parameters):
          sg.Button('Crosshair Off', size=(10, 1), font='Helvetica 14', pad=(p.pad_x,p.pad_y)),
          ],
         [sg.Button('Defaults', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y)),
-         sg.Button('Exit', size=(10, 1), font='Helvetica 14', pad=(p.pad_x,p.pad_y))],
+         sg.Button('Where am I?', size=(10, 1), font='Helvetica 14', pad=(p.pad_x,p.pad_y))],
+        [sg.Button('Exit', size=(10, 1), font='Helvetica 14', pad=(0,p.pad_y))],
         [sg.Text('Status:', size=(6,1), font=('Helvetica', 18), pad=(0,p.pad_y)),
          sg.Text('Idle', size=(8, 1), font=('Helvetica', 18), text_color='Red', key='output', pad=(0,p.pad_y))],
     ]
@@ -183,10 +187,16 @@ def create_layout(parameters):
     controls_column4 = [
         [sg.Text('Grey scale:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
          sg.Checkbox('', size=(int(10), 1), enable_events=True, key='greyscale', pad=(0,p.pad_y))],
-        [sg.Text('White balance:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
-         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='whitebalance', pad=(0,p.pad_y))],
         [sg.Text('Convert to DNG:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
          sg.Checkbox('', size=(int(10), 1), enable_events=True, key='convertdng', pad=(0,p.pad_y))],
+        [sg.Text('dark:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
+         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='dark', pad=(0,p.pad_y)),
+         sg.Text('light:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
+         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='light', pad=(0,p.pad_y))],
+        [sg.Text('bias:', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
+         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='bias', pad=(0,p.pad_y)),
+         sg.Text('flat:   ', font=("Helvetica", p.font_size, "bold"), pad=(0,p.pad_y)),
+         sg.Checkbox('', size=(int(10), 1), enable_events=True, key='flat', pad=(0,p.pad_y))],
     ]
 
     # define the window layout
@@ -367,7 +377,156 @@ def preview_overlay(camera=None, resolution=None, overlay=None):
     overlay.window = (0, 0, resolution[0], resolution[1])
     overlay.alpha = 128
     overlay.layer = 3
+
+def folder_file_selecter():
+    '''
+    This function offers a popup menu allowing for multiple images to be selected
     
+    It views a file and file tree
+    
+    Note, if scanning a large folder then tkinter will eventually complain about too many bitmaps.
+    
+    This can be fixed by reusing the images within PySimpleGUI (TODO: implement if needed at some point)
+    
+    Parameters
+    ----------
+    
+    Returns
+    -------
+    values :
+    
+    '''
+    # base64 versions of images of a folder and a file. PNG files (may not work with PySimpleGUI27, swap with GIFs)
+    folder_icon = b'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsSAAALEgHS3X78AAABnUlEQVQ4y8WSv2rUQRSFv7vZgJFFsQg2EkWb4AvEJ8hqKVilSmFn3iNvIAp21oIW9haihBRKiqwElMVsIJjNrprsOr/5dyzml3UhEQIWHhjmcpn7zblw4B9lJ8Xag9mlmQb3AJzX3tOX8Tngzg349q7t5xcfzpKGhOFHnjx+9qLTzW8wsmFTL2Gzk7Y2O/k9kCbtwUZbV+Zvo8Md3PALrjoiqsKSR9ljpAJpwOsNtlfXfRvoNU8Arr/NsVo0ry5z4dZN5hoGqEzYDChBOoKwS/vSq0XW3y5NAI/uN1cvLqzQur4MCpBGEEd1PQDfQ74HYR+LfeQOAOYAmgAmbly+dgfid5CHPIKqC74L8RDyGPIYy7+QQjFWa7ICsQ8SpB/IfcJSDVMAJUwJkYDMNOEPIBxA/gnuMyYPijXAI3lMse7FGnIKsIuqrxgRSeXOoYZUCI8pIKW/OHA7kD2YYcpAKgM5ABXk4qSsdJaDOMCsgTIYAlL5TQFTyUIZDmev0N/bnwqnylEBQS45UKnHx/lUlFvA3fo+jwR8ALb47/oNma38cuqiJ9AAAAAASUVORK5CYII='
+    file_icon = b'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsSAAALEgHS3X78AAABU0lEQVQ4y52TzStEURiHn/ecc6XG54JSdlMkNhYWsiILS0lsJaUsLW2Mv8CfIDtr2VtbY4GUEvmIZnKbZsY977Uwt2HcyW1+dTZvt6fn9557BGB+aaNQKBR2ifkbgWR+cX13ubO1svz++niVTA1ArDHDg91UahHFsMxbKWycYsjze4muTsP64vT43v7hSf/A0FgdjQPQWAmco68nB+T+SFSqNUQgcIbN1bn8Z3RwvL22MAvcu8TACFgrpMVZ4aUYcn77BMDkxGgemAGOHIBXxRjBWZMKoCPA2h6qEUSRR2MF6GxUUMUaIUgBCNTnAcm3H2G5YQfgvccYIXAtDH7FoKq/AaqKlbrBj2trFVXfBPAea4SOIIsBeN9kkCwxsNkAqRWy7+B7Z00G3xVc2wZeMSI4S7sVYkSk5Z/4PyBWROqvox3A28PN2cjUwinQC9QyckKALxj4kv2auK0xAAAAAElFTkSuQmCC'
+
+    # create popup which lets user select folder with images
+    starting_path = sg.popup_get_folder('Select Folder to display')
+
+    if not starting_path:
+        sys.exit(0)
+
+    treedata = sg.TreeData()
+
+    def add_files_in_folder(parent, dirname):
+        '''
+        This builds the file tree by looping through the selected folder
+        
+        Parameters
+        ----------
+        parent  : 
+        
+        dirname : str
+                  The directory where the images are located 
+        Returns
+        -------
+        None
+        '''
+        files = os.listdir(dirname)
+        for f in files:
+            fullname = os.path.join(dirname, f)
+            if os.path.isdir(fullname): # if it's a folder, add folder and recurse
+                treedata.Insert(parent, fullname, f, values=[], icon=folder_icon)
+                add_files_in_folder(fullname, fullname)
+            else:
+                treedata.Insert(parent, fullname, f, values=[os.stat(fullname).st_size], icon=file_icon)
+
+    add_files_in_folder('', starting_path)
+
+    layout = [[sg.Text('Select images to stack')],
+              [sg.Tree(data=treedata,
+                       headings=['Size', ],
+                       auto_size_columns=True,
+                       select_mode=sg.TABLE_SELECT_MODE_EXTENDED,
+                       num_rows=20,
+                       col0_width=40,
+                       key='-TREE-',
+                       show_expanded=False,
+                       enable_events=True,
+                       ),],
+              [sg.Button('Ok'), sg.Button('Cancel')]]
+
+    window = sg.Window('Image tree', layout, resizable=True, finalize=True)
+    window['-TREE-'].expand(True, True) # resize with the window (Full support for Tree element being released in 4.44.0)
+
+    while True: # Event Loop
+        event, images = window.read()
+        if event in (sg.WIN_CLOSED, 'Cancel', 'Ok'):
+            break
+        
+    window.close()
+    return images['-TREE-']
+
+def set_date_time():
+    '''
+    This function allows for the time and date to be set on the raspberry pi from within the GUI
+    For headless RPi setups this is very useful as it cannot use NTP time synchronisation with no WiFi
+    
+    It simply takes user input for the date and time and runs a shell command using the os module: 'sudo date -s date_time'
+    
+    Parameters
+    ----------
+    None
+    
+    Returns
+    -------
+    None
+    '''
+    # popup window to input date and time
+    date_time = sg.popup_get_text("Set Raspberry Pi Date and Time. Format: yyyy-mm-dd hh:mm:ss", "Input date and time", text_color='White')
+
+    # run the command
+    os.system('sudo date -s "{}"'.format(date_time))
+    
+def image_stacking():
+    '''
+    This function controls image stacking (averaging)
+    It opens up a seperate window where images can be selected
+    It then
+    
+    Parameters
+    ----------
+    
+    Returns
+    -------
+    
+    '''
+    # open up 
+    images = folder_file_selecter()
+    
+    return images
+
+def plate_solver(star_database, impath):
+    '''
+    This function allows for plate solving functionality
+    It takes the last image taken and compares it against a stellar database using tetra3
+    tetra3 is published by the ESA: https://tetra3.readthedocs.io/en/latest/index.html
+    It is licensed under the Apache License, Version 2.0
+    
+    Parameters
+    ----------
+    star_database :
+    
+    impath        : str
+                    The path of the image to be plate solved    
+    
+    Returns
+    -------
+    None
+    '''
+    print('Solving for image at: ' + str(impath))
+    with Image.open(str(impath)) as img:
+        solved = star_database.solve_from_image(img)  # Adding e.g. fov_estimate=11.4, fov_max_error=.1 improves performance
+    
+    try:
+        sg.popup_ok("Right Ascension (RA) = {:.6f}\nDeclination (DEL) = {:.6f}\nRoll = {:.6f}\nField Of View = {:.3f}\nMatches = {}".format(solved["RA"],
+                                                                                                                                 solved["Dec"],
+                                                                                                                                 solved["Roll"],
+                                                                                                                                 solved["FOV"],
+                                                                                                                                 solved["Matches"]), title="Location", location=(1280,0), text_color="White")
+    except:
+        sg.popup_ok("No match has been found.", title="Your Location", location=(1280,0), text_color="White")
+        
 def main():
     '''
     This is the main function that controls the entire program. It has all been wrapped inside a function for easy exit of the various options using a function return
@@ -382,6 +541,9 @@ def main():
     -------
     None
     '''
+    # create instance and load default_database (built with max_fov=12 and the rest as default)
+    t3 = Tetra3('default_database')
+    
     # create the GUI window using create_window() which takes the layout function as its argument
     window = create_window(create_layout(Parameters()))
 
@@ -410,7 +572,6 @@ def main():
     
     # start the preview
     with picamera.PiCamera(resolution=(3280,2464)) as camera:
-        #camera.start_preview(resolution=(640,480), fullscreen=False, window=(0,0,640,480))
         camera.start_preview(resolution=(1440,1080), fullscreen=False, window=(0,0,640,480))
         time.sleep(1)
         
@@ -423,10 +584,23 @@ def main():
             # dd/mm/YY H_M_S
             # note colons were removed as the RPi file system disliked moving files with colons in their name
             current_day_time = now.strftime("%d_%m_%Y_%H_%M_%S")
-
-            # setup the events and values which the GUi will call and modify
+                
+            # setup the events and values which the GUI will call and modify
             window, event, values = sg.read_all_windows(timeout=0)
             
+            # set the date-time if specified
+            if event == 'Set Date-Time':
+                set_date_time()
+            
+            # run the plate solver
+            if event == 'Where am I?':
+                #plate_solver(t3, Parameters.default_last_image)
+                plate_solver(t3, "tetra3/test_data/2019-07-29T204726_Alt60_Azi45_Try1.tiff")
+                
+            # run the image stacking capability
+            if event == 'Stacking Wizard':
+                images = image_stacking()
+                
             # change the default save location if selected from the Menu
             if event == 'Save Location':      
                 cam_folder_save = sg.PopupGetFolder('save_folder', initial_folder='{}'.format(Parameters.default_save_folder), no_window=True, keep_on_top=True)            
@@ -434,7 +608,7 @@ def main():
             # if the user selects the last image option
             if event == 'Last Image': 
                 create_image_window(Parameters.default_last_image)
-
+                
             if values['convertdng'] is True:
                 DNG_convert = True
 
@@ -496,7 +670,6 @@ def main():
                 time.sleep(1)
             
             if event == "Crosshair On":
-                
                 img = Image.open(os.path.join(os.path.dirname(sys.argv[0]),'crosshair.png')).convert('RGBA')
                
                 preview_overlay(camera, (width,height), img)
@@ -541,15 +714,18 @@ def main():
                 else:
                     camera.color_effects = None
                 
-                # turn on the white balance option if it is toggled
-                # note in picamera this is already set to auto
-                # in the old version which did not use picamera this was not the case
-                # TODO: Remove or replace with another option
-                if values['whitebalance'] is True:
-                    camera.awb_mode='auto'
-                else:
-                    camera.awb_mode='auto'
-        
+                # check if the dark, light, flat or bias options are selected
+                # if they are then specify an append to the image filename
+                file_append = ''
+                if values['dark'] is True:
+                    file_append = file_append + '_dark'
+                if values['light'] is True:
+                    file_append = file_append + '_light'
+                if values['flat'] is True:
+                    file_append = file_append + '_flat'
+                if values['bias'] is True:
+                    file_append = file_append + '_bias'
+                
                 # triggers long exposure
                 if cam_exposure > 1:
                     # triggers multiple exposures
@@ -568,7 +744,7 @@ def main():
                         sleep(30)
                         camera.exposure_mode = 'off'
                         # automate the name of the file save name
-                        image_save_file_name = '{}/Image_{}_no-{}_LE_{}s.jpeg'.format(cam_folder_save, current_day_time, i, cam_exposure)
+                        image_save_file_name = '{}/Image_{}_no-{}_LE_{}s{}.jpeg'.format(cam_folder_save, current_day_time, i, cam_exposure, file_append)
                         # capture the image in RAW format
                         camera.capture(image_save_file_name, format='jpeg', bayer=True)
                         # if specified convert the jpeg image to a DNG image
@@ -584,7 +760,7 @@ def main():
                 else:
                     for i in range(cam_no_images):
                         # specify image file name
-                        image_save_file_name = "{}/Image_{}_no-{}.jpeg".format(cam_folder_save, current_day_time, i)
+                        image_save_file_name = "{}/Image_{}_no-{}{}.jpeg".format(cam_folder_save, current_day_time, i, file_append)
                         
                         # capture the image in RAW format
                         camera.capture(image_save_file_name, format='jpeg', bayer=True)
