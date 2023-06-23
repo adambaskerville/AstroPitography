@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/adambaskerville/AstroPitography">
-    <img src="AstroPitographyLogoSmall.png" alt="Logo" width="80" height="80">
+    <img src="https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/AstroPitographyLogoSmall.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">AstroPitography</h3>
@@ -74,7 +74,7 @@ In theory any Raspberry Pi should work, along with the other various Raspberry P
 
 It is a self contained Python program. Type:
 
-`python3 AstroPitography.py`
+`astropitography`
 
 into a terminal on your raspberry pi to run the program and start taking pictures and videos. Editing your `.bashrc` can allow for the program to begin on startup. You can specify the image save location from the menu button at the top of the window.
 
@@ -85,13 +85,13 @@ My Raspberry Pi's resolution was set to 1600 x 900, 16:9 which you may want to r
 
 Below are some key dependencies and library versions to run AstroPitography: 
 
-`picamera==1.13`
+`picamera>=1.13`
 
-`pidng==3.4.7`
+`pidng>=3.4.7`
 
-`Pillow==8.4.0`
+`Pillow>=8.4.0`
 
-`PySimpleGUI==4.55.1`
+`PySimpleGUI>=4.55.1`
 
 <!-- ROADMAP -->
 ## Roadmap
