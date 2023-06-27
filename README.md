@@ -98,9 +98,8 @@ Below are some key dependencies and library versions to run AstroPitography:
 
  * More testing (when the skies finally improve here in rainy UK!)
  * Allow for fractional variability in shutter speed (simple to implement)
- * Improve framerate of live preview. [**completed**]
  * Improve features of video implementation.
- * The ability to load camera presets for different objects (e.g. planetary, deep sky etc...)
+ * The ability to load camera presets for different objects (e.g. planetary, deep sky etc...) [**In progress**]
  * Automatic image stacking capability. [**In progress**]
 
 <!-- CONTACT -->
