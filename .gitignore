@@ -31,3 +31,7 @@ var/
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+
+# Testing
+playground/

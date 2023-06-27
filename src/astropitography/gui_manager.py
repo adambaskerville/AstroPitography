@@ -1,19 +1,25 @@
+import io
+import os
+import sys
+
 import PySimpleGUI as sg
+from PIL import Image
 
-from settings import SCREEN_WIDTH
-from camera_manager import main_picam
+from astropitography.settings import SCREEN_WIDTH
 
 
-class GUISettings:
+class GUIManager:
     def __init__(self):
         self.pad_x = 5  # default horizontal padding amount around elements
         self.pad_y = 5  # default vertical padding amount around elements
-        self.font_size = 12  # font size for text elements in the GUI
-        self.GUI_TEXT_SIZE = (int(SCREEN_WIDTH / 85), 1)  # default size for text elem
+        self.font_size = 12
+        self.GUI_TEXT_SIZE = (int(SCREEN_WIDTH / 85), 1)
+        self.window = None
 
-    def create_layout(self):
+    def create_layout(self, picam_manager):
         """
-        This function is responsible for storing the layout of the GUI which is passed to the window object. All changes to the layout can be made within this function
+        This function is responsible for storing the layout of the GUI which is passed to the window object.
+        All changes to the layout can be made within this function.
 
         Parameters
         ----------
@@ -49,7 +55,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(0, 100)],
-                    initial_value=p.default_brightness,
+                    initial_value=picam_manager.brightness,
                     font=("Helvetica", 20),
                     key="brightness_slider",
                     pad=(0, self.pad_y),
@@ -63,7 +69,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(-100, 100)],
-                    initial_value=main_picam.contrast,
+                    initial_value=picam_manager.contrast,
                     font=("Helvetica", 20),
                     key="contrast_slider",
                     pad=(0, self.pad_y),
@@ -77,7 +83,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(-100, 100)],
-                    initial_value=self.default_saturation,
+                    initial_value=picam_manager.saturation,
                     font=("Helvetica", 20),
                     key="saturation_slider",
                     pad=(0, self.pad_y),
@@ -91,7 +97,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(0, 100)],
-                    initial_value=main_picam.sharpness,
+                    initial_value=picam_manager.sharpness,
                     font=("Helvetica", 20),
                     key="sharpness_slider",
                     pad=(0, self.pad_y),
@@ -110,7 +116,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(0, 200)],
-                    initial_value=main_picam.exposure,
+                    initial_value=picam_manager.exposure,
                     font=("Helvetica", 20),
                     key="exposure_slider",
                     pad=(0, self.pad_y),
@@ -125,7 +131,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(1, 100)],
-                    initial_value=main_picam.image_no,
+                    initial_value=picam_manager.img_count,
                     font=("Helvetica", 20),
                     key="no_images_slider",
                     pad=(0, self.pad_y),
@@ -140,7 +146,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(0, 100)],
-                    initial_value=main_picam.time_step,
+                    initial_value=picam_manager.time_step,
                     font=("Helvetica", 20),
                     key="time_step_slider",
                     pad=(0, self.pad_y),
@@ -155,7 +161,7 @@ class GUISettings:
                 ),
                 sg.Spin(
                     [i for i in range(1, 100)],
-                    initial_value=main_picam.vid_time,
+                    initial_value=picam_manager.vid_time,
                     font=("Helvetica", 20),
                     key="video_duration_slider",
                     pad=(0, self.pad_y),
@@ -167,57 +173,66 @@ class GUISettings:
         controls_column3 = [
             [
                 sg.Button(
-                    "Capture", size=(10, 1), font="Helvetica 14", pad=(0, p.pad_y)
+                    "Capture", size=(10, 1), font="Helvetica 14", pad=(0, self.pad_y)
                 ),
                 sg.Button(
-                    "Record", size=(10, 1), font="Helvetica 14", pad=(p.pad_x, p.pad_y)
+                    "Record",
+                    size=(10, 1),
+                    font="Helvetica 14",
+                    pad=(self.pad_x, self.pad_y),
                 ),
             ],
             [
                 sg.Button(
-                    "- Resize -", size=(10, 1), font="Helvetica 14", pad=(0, p.pad_y)
+                    "- Resize -", size=(10, 1), font="Helvetica 14", pad=(0, self.pad_y)
                 ),
                 sg.Button(
                     "+ Resize +",
                     size=(10, 1),
                     font="Helvetica 14",
-                    pad=(p.pad_x, p.pad_y),
+                    pad=(self.pad_x, self.pad_y),
                 ),
             ],
             [
                 sg.Button(
-                    "Crosshair On", size=(10, 1), font="Helvetica 14", pad=(0, p.pad_y)
+                    "Crosshair On",
+                    size=(10, 1),
+                    font="Helvetica 14",
+                    pad=(0, self.pad_y),
                 ),
                 sg.Button(
                     "Crosshair Off",
                     size=(10, 1),
                     font="Helvetica 14",
-                    pad=(p.pad_x, p.pad_y),
+                    pad=(self.pad_x, self.pad_y),
                 ),
             ],
             [
                 sg.Button(
-                    "Defaults", size=(10, 1), font="Helvetica 14", pad=(0, p.pad_y)
+                    "Set to Default",
+                    size=(10, 1),
+                    font="Helvetica 14",
+                    pad=(0, self.pad_y),
                 ),
                 sg.Button(
                     "Where am I?",
                     size=(10, 1),
                     font="Helvetica 14",
-                    pad=(p.pad_x, p.pad_y),
+                    pad=(self.pad_x, self.pad_y),
                 ),
             ],
-            [sg.Button("Exit", size=(10, 1), font="Helvetica 14", pad=(0, p.pad_y))],
+            [sg.Button("Exit", size=(10, 1), font="Helvetica 14", pad=(0, self.pad_y))],
             [
                 sg.Text(
-                    "Status:", size=(6, 1), font=("Helvetica", 18), pad=(0, p.pad_y)
+                    "Status:", size=(6, 1), font=("Helvetica", 18), pad=(0, self.pad_y)
                 ),
                 sg.Text(
                     "Idle",
                     size=(8, 1),
                     font=("Helvetica", 18),
                     text_color="Red",
-                    key="output",
-                    pad=(0, p.pad_y),
+                    key="status",
+                    pad=(0, self.pad_y),
                 ),
             ],
         ]
@@ -227,75 +242,81 @@ class GUISettings:
             [
                 sg.Text(
                     "Grey scale:",
-                    font=("Helvetica", p.font_size, "bold"),
-                    pad=(0, p.pad_y),
+                    font=("Helvetica", self.font_size, "bold"),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Checkbox(
                     "",
                     size=(int(10), 1),
                     enable_events=True,
                     key="greyscale",
-                    pad=(0, p.pad_y),
+                    pad=(0, self.pad_y),
                 ),
             ],
             [
                 sg.Text(
                     "Convert to DNG:",
-                    font=("Helvetica", p.font_size, "bold"),
-                    pad=(0, p.pad_y),
+                    font=("Helvetica", self.font_size, "bold"),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Checkbox(
                     "",
                     size=(int(10), 1),
                     enable_events=True,
                     key="convertdng",
-                    pad=(0, p.pad_y),
+                    pad=(0, self.pad_y),
                 ),
             ],
             [
                 sg.Text(
-                    "dark:", font=("Helvetica", p.font_size, "bold"), pad=(0, p.pad_y)
+                    "dark:",
+                    font=("Helvetica", self.font_size, "bold"),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Checkbox(
                     "",
                     size=(int(10), 1),
                     enable_events=True,
                     key="dark",
-                    pad=(0, p.pad_y),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Text(
-                    "light:", font=("Helvetica", p.font_size, "bold"), pad=(0, p.pad_y)
+                    "light:",
+                    font=("Helvetica", self.font_size, "bold"),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Checkbox(
                     "",
                     size=(int(10), 1),
                     enable_events=True,
                     key="light",
-                    pad=(0, p.pad_y),
+                    pad=(0, self.pad_y),
                 ),
             ],
             [
                 sg.Text(
-                    "bias:", font=("Helvetica", p.font_size, "bold"), pad=(0, p.pad_y)
+                    "bias:",
+                    font=("Helvetica", self.font_size, "bold"),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Checkbox(
                     "",
                     size=(int(10), 1),
                     enable_events=True,
                     key="bias",
-                    pad=(0, p.pad_y),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Text(
                     "flat:   ",
-                    font=("Helvetica", p.font_size, "bold"),
-                    pad=(0, p.pad_y),
+                    font=("Helvetica", self.font_size, "bold"),
+                    pad=(0, self.pad_y),
                 ),
                 sg.Checkbox(
                     "",
                     size=(int(10), 1),
                     enable_events=True,
                     key="flat",
-                    pad=(0, p.pad_y),
+                    pad=(0, self.pad_y),
                 ),
             ],
         ]
@@ -323,3 +344,168 @@ class GUISettings:
         ]
 
         return layout
+
+    def create_window(self, picam_manager):
+        """
+        This is the function that builds the GUI window using a supplied layout
+
+        Parameters
+        ----------
+        layout : List[List[Element]]
+                A list containing all the objects that are to be displayed in the GUI
+
+        Returns
+        -------
+        window : Window object
+                The GUI window with al lspecified elements displayed
+        """
+
+        # create a new layout given the GUI settings and default camera settings
+        layout = self.create_layout(picam_manager)
+
+        # create invisible window with no layout
+        window = sg.Window(
+            "AstroPitography",
+            [[]],
+            location=(1280, 0),
+            keep_on_top=False,
+            finalize=True,
+            resizable=False,
+            no_titlebar=False,  # set this to False so popups sit on top of the main window
+            auto_size_buttons=True,
+            grab_anywhere=False,
+        )
+        # size=(SCREEN_WIDTH,SCREEN_HEIGHT))
+
+        window.extend_layout(window, layout)
+
+        self.window = window
+
+    def create_image_window(image):
+        """
+        This is the function that builds the image window to show the last image
+
+        To view the image it must first be converted and saved as a .png
+        Then it is reopened in the image viewier in pysimplegui
+
+        TODO: Improve this functionality without the need to save the image
+
+        Parameters
+        ----------
+        image : str
+                The path and name of the last image captured
+
+        Returns
+        -------
+        window : Window object
+                The GUI window with all specified elements displayed
+        """
+        # set the default size of the last image and image window
+        image_window_size = (640, 480)
+        # open the original raw image
+        pil_image = Image.open(image)
+        # resize the image so it can be previewed and does not cover the entire screen
+        resizedImage = pil_image.resize(image_window_size, Image.ANTIALIAS)
+        # create a bytes object
+        png_bio = io.BytesIO()
+        # save the image as a png image
+        resizedImage.save(png_bio, format="PNG")
+        # create the data which will be displayed in pysimplegui
+        png_data = png_bio.getvalue()
+
+        # create the window and show the converted last image taken
+        layout = [
+            [sg.Image(data=png_data, size=image_window_size)],
+            [
+                sg.Button(
+                    "Delete", font=("Helvetica", 10), size=(int(SCREEN_WIDTH / 90), 1)
+                ),
+                sg.Button(
+                    "Return",
+                    font=("Helvetica", 10),
+                    size=(int(SCREEN_WIDTH / 90), 1),
+                    pad=(5, 0),
+                ),
+            ],
+        ]
+
+        # give the window a title
+        window = sg.Window("Last Image", layout, location=(1280, 0))
+
+    def _pad(resolution, width=32, height=16):
+        """
+        pads the specified resolution up to the nearest multiple of *width* and *height*
+        this is needed because overlays require padding to the camera's block size (32x16)
+
+        Parameters
+        ----------
+        resolution : tuple
+                    The size of the image to be overlayed on the live preview
+
+        width  : int
+                The default width
+
+        height : int
+                The default height
+
+        Returns
+        -------
+        resolution_tuple : tuple
+                        Tuple containing correctly scaled width and height of the overlay image to use with the live preview
+
+        """
+
+        return (
+            ((resolution[0] + (width - 1)) // width) * width,
+            ((resolution[1] + (height - 1)) // height) * height,
+        )
+
+    def remove_overlays(camera):
+        """
+        This function removes any overlays currently being displayed on the live preview
+
+        Parameters
+        ----------
+        camera : picamera.camera.PiCamera
+                The picamera camera object
+
+        Returns
+        -------
+        None
+        """
+        # remove all overlays from the camera preview
+        for o in camera.overlays:
+            camera.remove_overlay(o)
+
+    def preview_overlay(self, camera=None, resolution=None, overlay=None):
+        """
+        This function actually overlays the image on the live preview
+
+        Parameters
+        ----------
+        camera     : picamera.camera.PiCamera
+                    The picamera camera object
+
+        resolution : tuple
+                    The width and height of the window containing the overlay image
+
+        overlay    : PIL.Image.Image
+                    The overlay image object
+
+        Returns
+        -------
+        None
+        """
+        # remove all overlays
+        self.remove_overlays(camera)
+
+        # pad it to the right resolution
+        pad = Image.new("RGBA", self._pad(overlay.size))
+        pad.paste(overlay, (0, 0), overlay)
+
+        # add the overlay
+        overlay = camera.add_overlay(pad.tobytes(), size=overlay.size)
+        overlay.fullscreen = False
+        overlay.window = (0, 0, resolution[0], resolution[1])
+        overlay.alpha = 128
+        overlay.layer = 3
