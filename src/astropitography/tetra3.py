@@ -76,6 +76,7 @@ import logging
 import itertools
 from time import perf_counter as precision_timestamp
 from datetime import datetime
+from importlib.resources import files
 
 # External imports:
 import numpy as np
@@ -293,7 +294,7 @@ class Tetra3():
         """
         return self._db_props
 
-    def load_database(self, path='default_database'):
+    def load_database(self, path='db\\default_database'):
         """Load database from file.
 
         Args:
@@ -310,6 +311,7 @@ class Tetra3():
             path = Path(path).with_suffix('.npz')
 
         self._logger.info('Loading database from: ' + str(path))
+        
         with np.load(path) as data:
             self._logger.debug('Loaded database, unpack files')
             self._pattern_catalog = data['pattern_catalog']
