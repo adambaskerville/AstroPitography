@@ -17,9 +17,9 @@
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
-* [About AstroPitography](#about-the-project)
-  * [Built With](#built-with)
-  * [Uses](#uses)
+* [About AstroPitography](#about-astropitography)
+  * [Dependencies](#dependencies)
+  * [Necessary Hardware](#necessary-hardware)
 * [Getting Started](#getting-started)
 * [Dependencies](#dependencies)
 * [Roadmap](#roadmap)
@@ -56,14 +56,19 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. 
   * An option is provided to extract the RAW image information from the .jpg file and saved as a dng file using PiDNG.
 
-### Built With
+### Dependencies
 
-* [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest/)
-* [Pillow](https://pillow.readthedocs.io/en/stable/)
-* [Picamera](https://picamera.readthedocs.io/en/release-1.13/)
-* [tetra3](https://github.com/esa/tetra3)
+Below are some key dependencies and library versions to run AstroPitography: 
 
-### Uses (Not endorsements or sponsors, just where I purchased them from)
+* [`numpy==1.24.3`](https://numpy.org/doc/1.24/index.html)
+* [`scipy==1.8.1`](https://docs.scipy.org/doc/scipy-1.8.1/index.html)
+* [`PySimpleGUI>=4.55.1`](https://pysimplegui.readthedocs.io/en/latest/)
+* [`Pillow>=8.4.0`](https://pillow.readthedocs.io/en/stable/)
+* [`picamera>=1.13`](https://picamera.readthedocs.io/en/release-1.13/)
+* [`tetra3`](https://github.com/esa/tetra3)
+
+### Necessary Hardware
+_These are not endorsements or sponsors, just where I purchased them from_
 * [Raspberry Pi 3B+](https://thepihut.com/products/raspberry-pi-3-model-b-plus)
 * [Raspberry Pi HQ Camera](https://thepihut.com/products/raspberry-pi-high-quality-camera-module)
 
@@ -71,31 +76,64 @@ In theory any Raspberry Pi should work, along with the other various Raspberry P
 
 <!-- GETTING STARTED -->
 ## Getting Started
+Before installing the package, it is highly recommended that AstroPitography is used in a virtual environment due to the specific versions used for SciPy and numpy. We will use the `virtualenv` module instead of Python's built-in `venv` module, although both are completely viable options.
 
-Install the package using:
+Start by installing the package and its wrapper using:
+```
+pip3 install virtualenv virtualenvwrapper
+nano ~/.bashrc
+```
 
-`pip install astropitography`
+Copy and paste the following into the `/.bashrc` file:
+```
+#Virtualenvwrapper settings:
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+export WORKON_HOME=$HOME/.virtualenvs
+export VIRTUALENVWRAPPER_VIRTUALENV=~/.local/bin/virtualenv
+source ~/.local/bin/virtualenvwrapper.sh
+export VIRTUALENVWRAPPER_ENV_BIN_DIR=bin
+```
+
+Reload the file:
+
+```
+source ~/.bashrc
+```
+
+Create your virtual environment:
+
+```
+mkvirtualenv [NAME OF VENV]
+```
+
+To work inside your virtual environment:
+
+```
+workon [NAME OF VENV]
+```
+
+Install the package:
+
+```
+pip install astropitography
+```
 
 You're now read to start taking pictures and videos with your Raspberry Pi! To run the program, type:
 
-`astropitography`
+```
+astropitography
+```
 
 into your terminal on your Raspberry Pi. Editing your `.bashrc` can allow for the program to begin on startup. You can specify the image save location from the menu button at the top of the window.
+
+To exit/deactivate your virtual environment when you are done, use the following:
+```
+deactivate
+```
 
 **Note:**
 
 My Raspberry Pi's resolution was set to 1600 x 900, 16:9 which you may want to replicate when using the program. I plan to generalize the code for any resolution in the future.
-## Dependencies
-
-Below are some key dependencies and library versions to run AstroPitography: 
-
-`picamera>=1.13`
-
-`pidng>=3.4.7`
-
-`Pillow>=8.4.0`
-
-`PySimpleGUI>=4.55.1`
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -110,6 +148,8 @@ Below are some key dependencies and library versions to run AstroPitography:
 ## Contact
 
 Adam Baskerville - [@AdamBask](https://twitter.com/AdamBask) - ab695@sussex.ac.uk
+
+Daniel Opara - daniel.opara@tufts.edu
 
 Project Link: [https://github.com/adambaskerville/AstroPitography](https://github.com/adambaskerville/AstroPitography)
 
