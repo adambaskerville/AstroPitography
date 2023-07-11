@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "astropitography"
-version = "v0.0.1"
 description = "Astrophotography + raspberry pi HQ camera = AstroPitography"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -58,7 +57,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 namespaces = true
 where = ["src"]
-exclude = ["stack_test*", "tetra3*", "output*", "Old*", "images*", "AstroPitography_GUI.png", "__pycache__*"]
+exclude = ["tests*", "images*", "AstroPitography_GUI.png", "AstroPitographyLogoSmall.png", ".gitignore"]
 
 [tool.setuptools.package-data]
 "astropitography.db" = ["*.npz"]
@@ -66,21 +65,4 @@ exclude = ["stack_test*", "tetra3*", "output*", "Old*", "images*", "AstroPitogra
 
 [project.scripts]
 astropitography = "astropitography.__main__:main"
-
-[tool.bumpver]
-current_version = "1.0.5"
-version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
-commit_message = "bump version {old_version} -> {new_version}"
-commit = true
-tag = true
-push = false
-
-[tool.bumpver.file_patterns]
-"pyproject.toml" = [
-    'current_version = "{version}"',
-]
-"README.md" = [
-    "{version}",
-    "{pep440_version}",
-]
 
