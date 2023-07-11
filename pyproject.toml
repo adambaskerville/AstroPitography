@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "astropitography"
+version = "v0.0.1"
 description = "Astrophotography + raspberry pi HQ camera = AstroPitography"
 readme = "README.md"
 requires-python = ">=3.7"
