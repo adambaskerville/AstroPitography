@@ -72,11 +72,15 @@ In theory any Raspberry Pi should work, along with the other various Raspberry P
 <!-- GETTING STARTED -->
 ## Getting Started
 
-It is a self contained Python program. Type:
+Install the package using:
+
+`pip install astropitography`
+
+You're now read to start taking pictures and videos with your Raspberry Pi! To run the program, type:
 
 `astropitography`
 
-into a terminal on your raspberry pi to run the program and start taking pictures and videos. Editing your `.bashrc` can allow for the program to begin on startup. You can specify the image save location from the menu button at the top of the window.
+into your terminal on your Raspberry Pi. Editing your `.bashrc` can allow for the program to begin on startup. You can specify the image save location from the menu button at the top of the window.
 
 **Note:**
 
