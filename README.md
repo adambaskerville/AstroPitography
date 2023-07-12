@@ -147,7 +147,7 @@ My Raspberry Pi's resolution was set to 1600 x 900, 16:9 which you may want to r
 <!-- CONTACT -->
 ## Contact
 
-Adam Baskerville - [@AdamBask](https://twitter.com/AdamBask) - ab695@sussex.ac.uk
+Adam Baskerville - [@AdamBask](https://twitter.com/AdamBask) - adamlukebaskerville@gmail.com
 
 Daniel Opara - daniel.opara@tufts.edu
 
