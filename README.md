@@ -56,17 +56,6 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. 
   * An option is provided to extract the RAW image information from the .jpg file and saved as a dng file using PiDNG.
 
-### Dependencies
-
-Below are some key dependencies and library versions to run AstroPitography: 
-
-* [`numpy==1.24.3`](https://numpy.org/doc/1.24/index.html)
-* [`scipy==1.8.1`](https://docs.scipy.org/doc/scipy-1.8.1/index.html)
-* [`PySimpleGUI>=4.55.1`](https://pysimplegui.readthedocs.io/en/latest/)
-* [`Pillow>=8.4.0`](https://pillow.readthedocs.io/en/stable/)
-* [`picamera>=1.13`](https://picamera.readthedocs.io/en/release-1.13/)
-* [`tetra3`](https://github.com/esa/tetra3)
-
 ### Necessary Hardware
 _These are not endorsements or sponsors, just where I purchased them from_
 * [Raspberry Pi 3B+](https://thepihut.com/products/raspberry-pi-3-model-b-plus)
