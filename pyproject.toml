@@ -4,6 +4,52 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 
+[tool.black]
+line-length = 88
+include = '/src/.*\.pyi?$|/tests/.*\.pyi?$|/docs/.*\.pyi?$|noxfile.py'
+
+classifiers = [
+    'Natural Language :: English',
+    'Operating System :: Raspberry Pi',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.10',
+    'Typing :: Typed',
+]
+
+
+[tool.ruff]
+cache-dir = ".cache/ruff"
+# https://beta.ruff.rs/docs/rules
+select = [
+    "A", #flake8-builtins: https://github.com/gforcada/flake8-builtins
+    "B", #flake8-bugbear: https://pypi.org/project/flake8-bugbear/
+    "E", #pycodestyle (errors): https://beta.ruff.rs/docs/rules/#error-e
+    "F", #pyflakes: https://beta.ruff.rs/docs/rules/#pyflakes-f
+    "I", # isort: https://beta.ruff.rs/docs/rules/#isort-i
+    "NPY", # numpy: https://beta.ruff.rs/docs/rules/#numpy-specific-rules-npy
+    "PD", # pandas-vet: https://pypi.org/project/pandas-vet/
+    "PLE", # pylint errors: https://beta.ruff.rs/docs/rules/#pylint-pl
+    "PT", # flake8-pytest-style: https://pypi.org/project/flake8-pytest-style/
+    "SIM", # flake8-simplify: https://pypi.org/project/flake8_simplify/
+    "TRY", # tryceratops: https://pypi.org/project/tryceratops/ , https://guicommits.com/handling-exceptions-in-python-like-a-pro/
+    "RUF", #ruff specific: https://beta.ruff.rs/docs/rules/#ruff-specific-rules-ruf
+]
+ignore = [
+    "B008", # "Do not call function in argument defaults" (conflicts with use of `typer.Option`)
+    "B028", # "explicit `stacklevel` for warnings.warn" (I don't feel this is necessary in typical usage.)
+    "E501", # "line too long" (for strings and *comments*, which cannot be autofixed.)
+    "SIM108", # "use ternary operator instead" (often harder to read than a multiline if-then-else block.)
+    "TRY003", # "Avoid specifying long messages" (The alternative would be *many* different exception classes.)
+    "TRY200", # "Use raise from" (Duplicates B904, but with a less informative error message.)
+    "TRY300", # "Use try-except-else" (A useful smell-test, but `try-except-else` only makes sense with `finally`.)
+]
+
+[tool.ruff.isort]
+known-first-party = [
+    "astropitography",
+]
+
 [project]
 name = "astropitography"
 description = "Astrophotography + raspberry pi HQ camera = AstroPitography"
@@ -36,6 +82,8 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
 ]
 
+dynamic =["version" ]
+
 dependencies = [
   "scipy==1.8.1",
   "numpy==1.24.3",
@@ -46,7 +94,22 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pip-tools", "pytest", "bumpver"]
+test = [
+  "pytest >=6",
+  "pytest-cov >=3",
+]
+dev = [
+  "pip-tools", 
+  "pytest", 
+  "bumpver"
+]
+docs = [
+  "sphinx>=7.0",
+  "myst_parser>=0.13",
+  "sphinx_copybutton",
+  "sphinx_autodoc_typehints",
+  "furo>=2023.08.17",
+]
 
 [project.urls]
 Homepage = "https://adambaskerville.github.io/tabs/astro/"
