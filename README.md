@@ -14,6 +14,14 @@
   </p>
 </p>
 
+**NOTICE 3-Jan-2024**:
+
+I have been looking into upgrading this repository to use picamera2 in order to make it compatible with Raspberry OS Bullseye and later. This is proving to be a bit of a headache as the installation process is obtuse given the dependencies of picamera2 but more annoyingly is the incompatibility of picamera2 with virtual environments (even conda) which I am still trying to debug. 
+
+I will put this upgrade on hold for now and continue with feature development & importantly documentation; but I will add instructions on how to get AstroPitography working with Bullseye or later OSs.
+
+I will push some more changes soon which are going to improve the code structure and to adapt the repository to follow development best practices including linting, format checking, automated testing etc... I apologise for the lack of progress over the last few months; time has been a major issue for me but I have enforced time in my evenings to devote to this project.
+
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
