@@ -60,7 +60,7 @@ dynamic =["version" ]
 dependencies = [
   "scipy==1.8.1",
   "numpy==1.24.3",
-  'picamera>=1.12 ; platform_system != "arm32"',
+  "picamera>=1.12",
   "pidng>=3.4.7",
   "Pillow>=8.4.0",
   "PySimpleGUI>=4.55.1",
