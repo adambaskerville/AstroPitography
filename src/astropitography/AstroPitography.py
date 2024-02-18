@@ -132,7 +132,7 @@ def run() -> None:
             if event == "Last Image":
                 gui_manager.create_image_window(picam_manager.last_image)
 
-            if values["convertdng"] is True:
+            if values["convertdng"]:
                 picam_manager.DNG_convert = True
 
             # declare the camera settings if they have been changed
