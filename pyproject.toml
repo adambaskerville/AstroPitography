@@ -1,8 +1,6 @@
 [build-system]
-requires      = ["setuptools>=61.0.0", "wheel", "setuptools_scm[toml]>=6.2"]
+requires      = ["setuptools>=64.0.0", "wheel", "setuptools_scm>=6.2.0"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools_scm]
 
 [tool.black]
 line-length = 88
@@ -27,7 +25,7 @@ known-first-party = [
 name = "astropitography"
 description = "Astrophotography + raspberry pi HQ camera = AstroPitography"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = ["astrophotography", "raspberry pi"]
 authors = [
     { name = "Adam Baskerville", email = "adamlukebaskerville@gmail.com" },
@@ -55,15 +53,15 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
 ]
 
-dynamic =["version" ]
+dynamic = ['version']
 
 dependencies = [
-  "scipy==1.8.1",
-  "numpy==1.24.3",
-  "picamera>=1.12",
-  "pidng>=3.4.7",
-  "Pillow>=8.4.0",
-  "PySimpleGUI>=4.55.1",
+  'scipy==1.8.1',
+  'numpy==1.24.3',
+  'picamera>=1.12',
+  'pidng>=3.4.7',
+  'Pillow>=8.4.0',
+  'PySimpleGUI>=4.55.1',
 ]
 
 [project.optional-dependencies]
@@ -72,9 +70,8 @@ test = [
   "pytest-cov >=3",
 ]
 dev = [
-  "pip-tools", 
-  "pytest", 
-  "bumpver"
+    'nox',
+    'pre-commit',
 ]
 docs = [
   "sphinx>=7.0",
@@ -168,8 +165,9 @@ select = [ # https://beta.ruff.rs/docs/rules/
     "YTT", # flake8-2020
 ]
 
-[tool.setuptools]
-include-package-data = true
+[tool.setuptools_scm]
+local_scheme = "dirty-tag"
+write_to = "src/astropitography/version.py"
 
 [tool.setuptools.packages.find]
 namespaces = true
