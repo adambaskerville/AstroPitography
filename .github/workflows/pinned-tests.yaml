@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.11"]
 
     steps:
       - name: Checkout repo
@@ -22,7 +22,7 @@ jobs:
       - name: Run pinned tests
         run: |
           pip install nox
-          nox -s tests_run_pinned-${{ matrix.python-version }}
+          nox -s tests_run_pinned
       - name: Test Summary
         uses: test-summary/action@v2
         with:
