@@ -26,24 +26,21 @@ FORMATTING_TOOLS = ["black[jupyter]~=23.0"]
 LINTING_TOOLS = ["ruff~=0.0.292"]
 LOCKFILE_TOOLS = ["pip-tools>=7.0.0"]  # default --resolver=backtracking
 
-EXTRAS = [None, "openmm", "rdkit", "ase", "openeye"]
-DONT_TEST = [None, "openmm", "openeye"]
-
 def resolve_lockfile_path(python_version: str, extra: Optional[str] = None, rootdir: str = PINNED_VERSIONS) -> pathlib.Path:
-    """Resolves the expected lockfile path for a given python version and extra."""
-    lockfile_name = f"lockfile.{extra or 'core'}.txt"
+    """Resolves the expected lockfile path for a given python version"""
+    lockfile_name = "lockfile.txt"
     return pathlib.Path(rootdir) / python_version / lockfile_name
 
 
 def resolve_coverage_datafile_path(python_version: str, extra: Optional[str] = None) -> pathlib.Path:
-    """Resolves the expected coverage data_file path for a given python version and extra."""
-    coverage_datafile_name = f".coverage.{extra or 'core'}"
+    """Resolves the expected coverage data_file path for a given python version"""
+    coverage_datafile_name = f".coverage"
     return pathlib.Path(COVERAGE_DIR) / python_version / coverage_datafile_name
 
 
 def resolve_junitxml_path(python_version: str, extra: Optional[str] = None) -> pathlib.Path:
-    """Resolves the output pytest junitxml reports path for a given python version and extra."""
-    junitxml_report_name = f".junitxml.{extra or 'core'}.xml"
+    """Resolves the output pytest junitxml reports path for a given python version"""
+    junitxml_report_name = f".junitxml.xml"
     return pathlib.Path(TEST_REPORTS_DIR) / python_version / junitxml_report_name
 
 
@@ -240,7 +237,6 @@ def generate_lockfile(session: nox.Session, extra: Optional[str], lockfile_path:
 
 
 @nox.session(python=SUPPORTED_PYTHON_VERSIONS)
-@nox.parametrize("extra", EXTRAS)
 def dependencies_pin(session: nox.Session, extra: Optional[str]) -> None:
     """Generate pinned dependencies lockfiles.
 
@@ -268,11 +264,8 @@ def run_tests(session: nox.Session, *args: str, extra: Optional[str], lockfile_p
 
     # Setup which files and tests to target
     # install test dependencies and extra dependencies
-    if extra == "openmm":
-        session.conda_install("openmm", "openmm-torch", "openmm-ml", "pytorch>=2.0,<2.1", channel=["conda-forge"])
-        package_extras = ",".join(["tests", extra])
 
-    elif extra is not None:
+    if extra is not None:
         package_extras = ",".join(["tests", extra])
 
     else:
@@ -304,7 +297,6 @@ def run_tests(session: nox.Session, *args: str, extra: Optional[str], lockfile_p
 
 
 @nox.session(venv_backend="conda", python=SUPPORTED_PYTHON_VERSIONS)
-@nox.parametrize("extra", [e for e in EXTRAS if e not in DONT_TEST])
 def tests_run_latest(session: nox.Session, extra: Optional[str]) -> None:
     """Run tests against latest available dependencies.
 
@@ -324,7 +316,6 @@ def tests_run_latest(session: nox.Session, extra: Optional[str]) -> None:
 
 
 @nox.session(venv_backend="conda", python=SUPPORTED_PYTHON_VERSIONS)
-@nox.parametrize("extra", [e for e in EXTRAS if e not in DONT_TEST])
 def tests_run_pinned(session: nox.Session, extra: Optional[str]) -> None:
     """Run tests against pinned dependencies.
 
