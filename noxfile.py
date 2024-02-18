@@ -120,7 +120,7 @@ def dist_build(session: nox.Session) -> None:
     session.run("python", "-m", "build")
 
 
-@nox.session(venv_backend="conda", python=SUPPORTED_PYTHON_VERSIONS)
+@nox.session()
 def docs_build(session: nox.Session) -> None:
     """Build sphinx documentation and API docs.
 
@@ -128,8 +128,8 @@ def docs_build(session: nox.Session) -> None:
         nox -s docs_build-3.10
     """
 
-    lockfile_path = resolve_lockfile_path(python_version=session.python)
-    session.install(".[docs]", "--constraint", lockfile_path)
+    #lockfile_path = resolve_lockfile_path(python_version=session.python)
+    #session.install(".[docs]", "--constraint", lockfile_path)
 
     # # Build API docs
     # session.run(*apidoc_cmd.split(" "))
