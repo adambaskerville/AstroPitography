@@ -1,27 +1,31 @@
-name: Publish package
+name: Upload Python Package
 
 on:
-  workflow_call:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
 
 jobs:
-  publish-package:
-    environment: pypi-publish
+  deploy:
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-      - name: Build package
-        run: |
-          pip install nox
-          nox -s dist_build-3.10
-      - name: Deploy package
-        env:
-          EXS_PYPI_TOKEN: ${{ secrets.EXS_PYPI_TOKEN }}
-        run: |
-          pip install twine
-          python -m twine upload --verbose -u __token__ -p $EXS_PYPI_TOKEN dist/*
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+    - name: Build package
+      run: python -m build
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
