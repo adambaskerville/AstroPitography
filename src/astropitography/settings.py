@@ -5,6 +5,7 @@ import PySimpleGUI as sg
 # grab the resolution of the screen the program is being run on
 SCREEN_WIDTH, SCREEN_HEIGHT = sg.Window.get_screen_size()
 
+# specify folder save location names for images and videos
 IMAGE_SAVE_FOLDER: str = "{}/images".format(os.getcwd())
 VIDEO_SAVE_FOLDER: str = "{}/videos".format(os.getcwd())
 
