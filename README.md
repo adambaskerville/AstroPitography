@@ -21,6 +21,7 @@
   * [Dependencies](#dependencies)
   * [Necessary Hardware](#necessary-hardware)
 * [Getting Started](#getting-started)
+* [Starting From Scratch](#starting-from-scratch)
 * [Dependencies](#dependencies)
 * [Roadmap](#roadmap)
 * [Examples](#examples)
@@ -125,6 +126,11 @@ deactivate
 **Note:**
 
 My Raspberry Pi's resolution was set to 1600 x 900, 16:9 which you may want to replicate when using the program. I plan to generalize the code for any resolution in the future.
+
+
+## Starting From Scratch
+
+If you are new to using Raspberry Pi's, getting everything setup can seem a little daunting. See [this])() indepth guide on how to setup your Raspberry Pi for use with AstroPitography.
 
 <!-- ROADMAP -->
 ## Roadmap

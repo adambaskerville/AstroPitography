@@ -469,7 +469,7 @@ class GUIManager:
         for overlay in camera.overlays:
             camera.remove_overlay(overlay)
 
-    def preview_overlay(self, camera: Optional[picamera.camera.PiCamera]=None, resolution: Optional[Tuple]=None, overlay: Image.Image=None) -> None:
+    def preview_overlay(camera: Optional[picamera.camera.PiCamera]=None, resolution: Optional[Tuple]=None, overlay: Image.Image=None) -> None:
         """
         This function actually overlays the image on the live preview
 
@@ -489,7 +489,7 @@ class GUIManager:
         None
         """
         # remove all overlays
-        self.remove_overlays(camera)
+        remove_overlays(camera)
 
         # pad it to the right resolution
         pad = Image.new("RGBA", self._pad(overlay.size))

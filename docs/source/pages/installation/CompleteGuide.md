@@ -183,5 +183,115 @@ Now we have formatted the microSD card and plugged in the Raspberry Pi, we are n
 
 6. You should now be ready to start using AstroPitography!
 
+
+# Modify Raspberry Pi Settings
+
+1. We need to increase the GPU memory, otherwise when processing the captured images and video we will hit a memory allocation error. To do this navigate to `Preferences` -> `Raspberry Pi Configuration`. From here go to the `Performance` tab and increase the GPU memory to 512. If asked to restart, then please do so.
+
+    ![GPU](../../_static/installation_guide_images/gpu_memory.png)
+
+2. We also need to change the native resolution of the Raspberry Pi as the GUI may end up being too large to fit onto the screen. In future versions this will be automated to resolution. To do this navigate to `Preferences` -> `Raspberry Pi Configuration`. From here to to the `Display` tab and cick the `Set Resolution` button at the top, then select 1920 x 1080 60Hz 16:9. If asked to restart, then please do so.
+
+    ![Resolution](../../_static/installation_guide_images/set_resolution.png)
+
 # Install AstroPitography
 
+Your Raspberry Pi should now be setup, ready to install AstroPitography; of which there are two recommended methods:
+
+  * Through PYPI (more for users).
+  * Through GitHub (more for developers).
+
+## Through PYPI
+
+To install AstroPitography using pip it is first recommended to create a virtual environment. There are multiple ways to do this but here we discuss using `virtualenv`.
+
+1. Start by installing the package and its wrapper.
+
+    ```shell
+    pip3 install virtualenv virtualenvwrapper
+    ```
+
+2. Copy and paste the following into the `/.bashrc` file.
+
+    ```shell
+    #Virtualenvwrapper settings:
+    export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+    export WORKON_HOME=$HOME/.virtualenvs
+    export VIRTUALENVWRAPPER_VIRTUALENV=~/.local/bin/virtualenv
+    source ~/.local/bin/virtualenvwrapper.sh
+    export VIRTUALENVWRAPPER_ENV_BIN_DIR=bin
+    ```
+
+3. Reload the file.
+
+    ```shell
+    source ~/.bashrc
+    ```
+
+4. Create your virtual environment; lets call it `astropi`
+
+    ```shell
+    mkvirtualenv astropi
+    ```
+
+5. Activate the new environment.
+
+    ```shell
+    workon astropi
+    ```
+
+6. Install the package.
+
+    ```shell
+    pip install astropitography
+    ```
+
+7. You're now ready to start taking pictures and videos with your Raspberry Pi! To run the program, type.
+
+    ```shell
+    astropitography
+    ```
+
+    into your terminal on your Raspberry Pi. Editing your `.bashrc` can allow for the program to begin on startup. You can specify the image save location from the menu button at the top of the window.
+
+    To exit/deactivate your virtual environment when you are done, use the following.
+
+    ```shell
+    deactivate
+    ```
+
+
+
+## Through GitHub
+
+1. To install from GitHub, first clone the repository.
+
+    ```shell
+    git clone https://github.com/adambaskerville/AstroPitography.git
+    ```
+
+2. Change directory to `AstroPitography`.
+
+    ```shell
+    cd AstroPitography
+    ```
+
+3. Run the installation script.
+
+    ```shell
+    ./init_venv.sh
+    ```
+
+4. Once installed, activate the environment.
+
+    ```shell
+    source .venv/bin/activate
+    ```
+
+5. Then run.
+
+    ```shell
+    astropitography
+    ```
+  
+    which will launch the AstroPitography GUI.
