@@ -1,6 +1,8 @@
 import os
+from sys import intern
 import time
 from pathlib import Path
+from typing import List, Tuple, Union
 
 import picamera
 import PySimpleGUI as sg
@@ -13,7 +15,21 @@ from astropitography.camera_manager import PiCamManager
 from astropitography.gui_manager import GUIManager
 
 
-def resize_preview(event, camera_obj, res_counter, resolution_list):
+def resize_preview(event: str, camera_obj: picamera.PiCamera, res_counter: int, resolution_list: List[str]) -> None:
+    """
+    Resize the preview window
+
+    Parameters
+    ----------
+    event : str
+        The event being pressing of the + button to increase the size of the window or - to decrease the size of the window
+    camera_obj : picamera.PiCamera
+        The PiCamera object to resize
+    res_counter : int
+        Keep track of which resolution is currently being used
+    resolution_list : List[str]
+        The available resolutions to iterate through
+    """
     if "+" in event:
         res_counter = min(res_counter + 1, len(resolution_list) - 1)
     else:
@@ -33,7 +49,7 @@ def resize_preview(event, camera_obj, res_counter, resolution_list):
     time.sleep(1)
 
 
-def run():
+def run() -> None:
     """
     This is the main function that controls the entire program. It has all been wrapped inside a function for easy exit of the various options using a function return
 
@@ -57,21 +73,21 @@ def run():
     gui_manager.create_window(picam_manager)
 
     # set the default save folder for the images
-    img_save_directory = config.IMAGE_SAVE_FOLDER
+    img_save_directory: str = config.IMAGE_SAVE_FOLDER
 
     # if images folder does not exist, create it
     if not os.path.isdir(img_save_directory):
         os.mkdir(img_save_directory)
 
     # set the default save folder for the videos
-    vid_save_directory = config.VIDEO_SAVE_FOLDER
+    vid_save_directory: str = config.VIDEO_SAVE_FOLDER
 
     # if videos folder does not exist, create it
     if not os.path.isdir(vid_save_directory):
         os.mkdir(vid_save_directory)
 
     # list of resolutions to view the live preview
-    resolution_list = config.RESOLUTION_OPTIONS
+    resolution_list: List[str] = config.RESOLUTION_OPTIONS
 
     # extract out the width and height from the resolution individually
     width, height = [int(num) for num in (resolution_list[0]).split() if num.isdigit()]
@@ -85,7 +101,7 @@ def run():
         time.sleep(1)
 
         # set a counter to be able to iterate through the resolution options
-        res_counter = 0
+        res_counter: int = 0
         while True:
             # setup the events and values which the GUI will call and modify
             gui_manager.window, event, values = sg.read_all_windows(timeout=0)
@@ -116,7 +132,7 @@ def run():
             if event == "Last Image":
                 gui_manager.create_image_window(picam_manager.last_image)
 
-            if values["convertdng"] is True:
+            if values["convertdng"]:
                 picam_manager.DNG_convert = True
 
             # declare the camera settings if they have been changed

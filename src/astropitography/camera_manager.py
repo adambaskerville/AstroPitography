@@ -2,7 +2,8 @@ import os
 import time
 from pathlib import Path
 from datetime import datetime
-
+from typing import Optional, Union, Tuple
+import picamera
 from pidng.core import RPICAM2DNG
 
 from astropitography.settings import SCREEN_HEIGHT
@@ -10,22 +11,24 @@ from astropitography.settings import SCREEN_HEIGHT
 
 class PiCamManager:
     def __init__(self):
-        self.camera = None
+        """
+        Initialize the PiCamManager instance with default values
+        """
+        self.camera: Optional[picamera.PiCamera] = None
+
 
         # default values for the camera
-        self.brightness = 50
-        self.contrast = 0
-        self.saturation = 0
-        self.sharpness = 0
-        self.img_count = 1  # num of images to use for multiple exposures
-        self.exposure = 1
-        self.time_step = 2
-        self.vid_time = 10
-        self.image_size = (int(SCREEN_HEIGHT / 2), int(SCREEN_HEIGHT / 2))
-        self.preview_size = (int(SCREEN_HEIGHT / 2), int(SCREEN_HEIGHT / 2))
-        self.last_image = (
-            Path(__file__).parent / "blackimage.png"
-        )  # black frame to fill the last image menu popout
+        self.brightness: int = 50
+        self.contrast: int = 0
+        self.saturation: int = 0
+        self.sharpness: int = 0
+        self.img_count: int = 1  # num of images to use for multiple exposures
+        self.exposure: int = 1
+        self.time_step: int = 2
+        self.vid_time: int = 10
+        self.image_size: Tuple[int, int] = (int(SCREEN_HEIGHT / 2), int(SCREEN_HEIGHT / 2))
+        self.preview_size: Tuple[int, int] = (int(SCREEN_HEIGHT / 2), int(SCREEN_HEIGHT / 2))
+        self.last_image: Path = Path(__file__).parent / "blackimage.png"
         self.default_settings = {
             "brightness": 50,
             "contrast": 0,
@@ -37,11 +40,17 @@ class PiCamManager:
             "vid_time": 10,
         }
 
-        self.DNG_convert = False  # default flag for image DNG conversion
-        self.delete_JPG_twin = False
+        self.DNG_convert : bool = False  # default flag for image DNG conversion
+        self.delete_JPG_twin : bool = False
 
     # fmt: off
-    def update_camera_settings(self, values):
+    def update_camera_settings(self, values: dict) -> None:
+        """
+        Update camera settings based on user input values
+
+        Parameters:
+            - values (dict): A dictionary containing user input values from the GUI
+        """
         self.brightness = int(values["brightness_slider"])  # Grabs the user set brightness value
         self.contrast = int(values["contrast_slider"])  # Grabs the user set contrast value
         self.saturation = int(values["saturation_slider"])  # Grabs the user set saturation value
@@ -51,14 +60,22 @@ class PiCamManager:
         self.time_step = int(values["time_step_slider"])  # Grabs the user set time increment between images
         self.vid_time = values["video_duration_slider"]  # Grabs the user set video length
 
-        # apply the new settings to the camera
-        self.camera.brightness = self.brightness  # brightness     min: 0   , max: 255 , increment:1
-        self.camera.contrast = self.contrast      # contrast       min: 0   , max: 255 , increment:1
-        self.camera.saturation = self.saturation  # saturation     min: 0   , max: 255 , increment:1
-        self.camera.sharpness = self.sharpness    # sharpness      min: 0   , max: 255 , increment:1
-    # fmt: on
+        if self.camera is not None:
+            # apply the new settings to the camera
+            self.camera.brightness = self.brightness  # brightness     min: 0   , max: 255 , increment:1
+            self.camera.contrast = self.contrast      # contrast       min: 0   , max: 255 , increment:1
+            self.camera.saturation = self.saturation  # saturation     min: 0   , max: 255 , increment:1
+            self.camera.sharpness = self.sharpness    # sharpness      min: 0   , max: 255 , increment:1
 
-    def capture_video(self, gui_manager, save_location):
+
+    def capture_video(self, gui_manager, save_location: str) -> None:
+        """
+        Capture a video using the camera and save it to the specified location
+
+        Parameters:
+            - gui_manager (GUIManager): The GUI manager instance
+            - save_location (str): The location to save the video
+        """
         # datetime object containing current date and time for time stamping the images and videos
         now = datetime.now()
 
@@ -74,9 +91,7 @@ class PiCamManager:
         window.Refresh()
 
         # specify the name of the video save file
-        video_file = "{}/astropito_video_{}_{}s.yuv".format(
-            save_location, curr_date_time, self.vid_time
-        )
+        video_file = f"{save_location}/astropito_video_{curr_date_time}_{self.vid_time}s.yuv"
 
         # update the activity notification
         window["status"].update("Working...")
@@ -95,7 +110,15 @@ class PiCamManager:
         window.Refresh()
 
     # fmt: off
-    def capture_image(self, gui_manager, values, save_location):
+    def capture_image(self, gui_manager, values: dict, save_location: str) -> None:
+        """
+        Capture an image using the camera and save it to the specified location
+
+        Parameters:
+            - gui_manager (GUIManager): The GUI manager instance
+            - values (dict): A dictionary containing user input values from the GUI
+            - save_location (str): The location to save the image
+        """
         # datetime object containing current date and time for time stamping the images and videos
         now = datetime.now()
 
@@ -110,7 +133,7 @@ class PiCamManager:
         gui_manager.window.Refresh()
 
         # turn on the grey scale option if it is toggled
-        if values["greyscale"] is True:
+        if values["greyscale"]:
             picam.color_effects = (128, 128)
         else:
             picam.color_effects = None
@@ -118,13 +141,13 @@ class PiCamManager:
         # check if the dark, light, flat or bias options are selected
         # if they are then specify an append to the image filename
         file_append = ""
-        if values["dark"] is True:
+        if values["dark"]:
             file_append = file_append + "_dark"
-        if values["light"] is True:
+        if values["light"]:
             file_append = file_append + "_light"
-        if values["flat"] is True:
+        if values["flat"]:
             file_append = file_append + "_flat"
-        if values["bias"] is True:
+        if values["bias"]:
             file_append = file_append + "_bias"
 
         # triggers long exposure
@@ -144,16 +167,13 @@ class PiCamManager:
                 # measure AWB (we may wish to use fixed AWB instead)
                 time.sleep(30)
                 picam.exposure_mode = "off"
+
                 # automate the name of the file save name
-                image_file = "{}/astropito_image_{}_no-{}_LE_{}s{}.jpeg".format(
-                    save_location,
-                    curr_date_time,
-                    i,
-                    self.exposure,
-                    file_append,
-                )
+                image_file = f"{save_location}/astropito_image_{curr_date_time}_no-{i}_LE_{self.exposure}s{file_append}.jpeg"
+  
                 # capture the image in RAW format
                 picam.capture(image_file, format="jpeg", bayer=True)
+
                 # if specified convert the jpeg image to a DNG image
                 if self.DNG_convert:
                     self.convert_to_DNG(image_file)
@@ -167,9 +187,7 @@ class PiCamManager:
         else:
             for i in range(self.img_count):
                 # specify image file name
-                image_file = "{}/astropito_image_{}_no-{}{}.jpeg".format(
-                    save_location, curr_date_time, i, file_append
-                )
+                image_file = f"{save_location}/astropito_image_{curr_date_time}_no-{i}{file_append}.jpeg"
 
                 # capture the image in RAW format
                 picam.capture(image_file, format="jpeg", bayer=True)
@@ -189,18 +207,12 @@ class PiCamManager:
         gui_manager.window.Refresh()
     # fmt: on
 
-    def convert_to_DNG(self, image_name):
+    def convert_to_DNG(self, image_name: str) -> None:
         """
-        This function will crate a DNG image from the .jpg + .raw data using PiDNG
+        Convert a captured image to DNG format.
 
-        Parameters
-        ----------
-        image_save_file_name : str
-                            a string filename
-
-        Returns
-        -------
-        None
+        Parameters:
+            - image_name (str): The name of the image file to convert.
         """
         # call RPICAM2DNG from PiDNG
         raw_dng_convert = RPICAM2DNG()
@@ -212,14 +224,15 @@ class PiCamManager:
         if self.delete_JPG_twin:
             os.remove(image_name + ".jpg")
 
-    def reset_to_default(self):
+    def reset_to_default(self) -> None:
         for attr, value in self.default_settings.items():
             setattr(self, attr, value)
 
         # apply the default settings to the camera
         # fmt: off
-        self.camera.brightness = self.brightness  # brightness     min: 0   , max: 255 , increment:1
-        self.camera.contrast = self.contrast      # contrast       min: 0   , max: 255 , increment:1
-        self.camera.saturation = self.saturation  # saturation     min: 0   , max: 255 , increment:1
-        self.camera.sharpness = self.sharpness    # sharpness      min: 0   , max: 255 , increment:1
+        if self.camera is not None:
+            self.camera.brightness = self.brightness  # brightness     min: 0   , max: 255 , increment:1
+            self.camera.contrast = self.contrast      # contrast       min: 0   , max: 255 , increment:1
+            self.camera.saturation = self.saturation  # saturation     min: 0   , max: 255 , increment:1
+            self.camera.sharpness = self.sharpness    # sharpness      min: 0   , max: 255 , increment:1
         # fmt: on

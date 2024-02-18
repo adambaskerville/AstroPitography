@@ -29,6 +29,7 @@ I will push some more changes soon which are going to improve the code structure
   * [Dependencies](#dependencies)
   * [Necessary Hardware](#necessary-hardware)
 * [Getting Started](#getting-started)
+* [Starting From Scratch](#starting-from-scratch)
 * [Dependencies](#dependencies)
 * [Roadmap](#roadmap)
 * [Examples](#examples)
@@ -38,9 +39,11 @@ I will push some more changes soon which are going to improve the code structure
 
 ![AstroPitography](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/AstroPitography_GUI.png)
 
-Astrophotography is an expensive pastime, scopes, driven mounts, cameras, eyepieces, etc... I have always enjoyed squeezing as much performance out of more limited hardware to see what the end results can be; so when the **£50** Raspberry Pi High Quality camera was released I wanted to see how it handles astrophotography. It will certainly not beat a top of the line DSLR or a ZWO camera which are several orders of magnitude more expensive and refined, but I wanted to see what can be achieved. I wrote this simple Python program to act as a basic GUI for when I am out with my telescope. The Raspberry Pi 3B+ and HQ camera were mounted together and using a 1.25 inch to C adapter sits in the telescope eyepiece position. I set up the Raspberry Pi to act as a wireless access point and connect to its network via VNC on my phone to conveniently interface with the GUI. A small Raspberry Pi screen will also work great or just hooking it up to a regular monitor.
+Astrophotography is typically costly due to equipment like scopes, mounts, cameras, and accessories. Despite this, I've always enjoyed pushing the limits of more modest hardware to explore its potential. With the release of the £50 Raspberry Pi High Quality camera, I aimed to test its capabilities in astrophotography. While it can't surpass top-tier DSLRs or expensive ZWO cameras in performance, I wanted to explore its potential. To facilitate this, I developed a straightforward Python program that serves as a basic GUI for my telescope outings.
 
-I had originally used stellarmate with kstars etc... but wanted a simpler way to interface with the HQ camera. This is an early implementation of the program which currently has the following features:
+Combining the Raspberry Pi 3B+ with the HQ camera, I used a 1.25-inch to C adapter to position them in the telescope's eyepiece slot. Setting up the Raspberry Pi as a wireless access point, I connect to its network via VNC on my phone, providing a convenient way to interact with the GUI. Alternatively, a small Raspberry Pi screen or a regular monitor can also be used.
+
+Initially, I used stellarmate with kstars, but I sought a simpler method to interface with the HQ camera. This is an early implementation of the program which currently has the following features:
 
 * Control important settings of the camera:
   * Brightness
@@ -63,17 +66,6 @@ I had originally used stellarmate with kstars etc... but wanted a simpler way to
 * Timed video capturing.
 * The image save format is `RAW`, preferred over `png` which processes the image. `png` is used when showing the most recent image taken. 
   * An option is provided to extract the RAW image information from the .jpg file and saved as a dng file using PiDNG.
-
-### Dependencies
-
-Below are some key dependencies and library versions to run AstroPitography: 
-
-* [`numpy==1.24.3`](https://numpy.org/doc/1.24/index.html)
-* [`scipy==1.8.1`](https://docs.scipy.org/doc/scipy-1.8.1/index.html)
-* [`PySimpleGUI>=4.55.1`](https://pysimplegui.readthedocs.io/en/latest/)
-* [`Pillow>=8.4.0`](https://pillow.readthedocs.io/en/stable/)
-* [`picamera>=1.13`](https://picamera.readthedocs.io/en/release-1.13/)
-* [`tetra3`](https://github.com/esa/tetra3)
 
 ### Necessary Hardware
 _These are not endorsements or sponsors, just where I purchased them from_
@@ -142,6 +134,11 @@ deactivate
 **Note:**
 
 My Raspberry Pi's resolution was set to 1600 x 900, 16:9 which you may want to replicate when using the program. I plan to generalize the code for any resolution in the future.
+
+
+## Starting From Scratch
+
+If you are new to using Raspberry Pi's, getting everything setup can seem a little daunting. See [this])() indepth guide on how to setup your Raspberry Pi for use with AstroPitography.
 
 <!-- ROADMAP -->
 ## Roadmap

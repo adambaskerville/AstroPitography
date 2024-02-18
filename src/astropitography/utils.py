@@ -1,11 +1,12 @@
 import os
 import sys
+from typing import Any, Dict, List, Optional, Tuple
 
 import PySimpleGUI as sg
 from PIL import Image
 
 
-def folder_file_selecter(gui_manager):
+def folder_file_selecter(gui_manager: Any) -> List[str]:
     """
     This function offers a popup menu allowing for multiple images to be selected
 
@@ -15,13 +16,11 @@ def folder_file_selecter(gui_manager):
 
     This can be fixed by reusing the images within PySimpleGUI (TODO: implement if needed at some point)
 
-    Parameters
-    ----------
+    Parameters:
+        - gui_manager (Any): The GUI manager instance.
 
-    Returns
-    -------
-    values :
-
+    Returns:
+        - List[str]: List of selected image paths.
     """
     # base64 versions of images of a folder and a file. PNG files (may not work with PySimpleGUI27, swap with GIFs)
     folder_icon = b"iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsSAAALEgHS3X78AAABnUlEQVQ4y8WSv2rUQRSFv7vZgJFFsQg2EkWb4AvEJ8hqKVilSmFn3iNvIAp21oIW9haihBRKiqwElMVsIJjNrprsOr/5dyzml3UhEQIWHhjmcpn7zblw4B9lJ8Xag9mlmQb3AJzX3tOX8Tngzg349q7t5xcfzpKGhOFHnjx+9qLTzW8wsmFTL2Gzk7Y2O/k9kCbtwUZbV+Zvo8Md3PALrjoiqsKSR9ljpAJpwOsNtlfXfRvoNU8Arr/NsVo0ry5z4dZN5hoGqEzYDChBOoKwS/vSq0XW3y5NAI/uN1cvLqzQur4MCpBGEEd1PQDfQ74HYR+LfeQOAOYAmgAmbly+dgfid5CHPIKqC74L8RDyGPIYy7+QQjFWa7ICsQ8SpB/IfcJSDVMAJUwJkYDMNOEPIBxA/gnuMyYPijXAI3lMse7FGnIKsIuqrxgRSeXOoYZUCI8pIKW/OHA7kD2YYcpAKgM5ABXk4qSsdJaDOMCsgTIYAlL5TQFTyUIZDmev0N/bnwqnylEBQS45UKnHx/lUlFvA3fo+jwR8ALb47/oNma38cuqiJ9AAAAAASUVORK5CYII="

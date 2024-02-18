@@ -1,14 +1,31 @@
 [build-system]
-requires      = ["setuptools>=61.0.0", "wheel", "setuptools_scm[toml]>=6.2"]
+requires      = ["setuptools>=64.0.0", "wheel", "setuptools_scm>=6.2.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
+[tool.black]
+line-length = 88
+include = '/src/.*\.pyi?$|/tests/.*\.pyi?$|/docs/.*\.pyi?$|noxfile.py'
+
+classifiers = [
+    'Natural Language :: English',
+    'Operating System :: Raspberry Pi',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3',
+    'Typing :: Typed',
+]
+
+
+[tool.ruff.isort]
+known-first-party = [
+    "astropitography",
+]
 
 [project]
 name = "astropitography"
 description = "Astrophotography + raspberry pi HQ camera = AstroPitography"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = ["astrophotography", "raspberry pi"]
 authors = [
     { name = "Adam Baskerville", email = "adamlukebaskerville@gmail.com" },
@@ -36,23 +53,121 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
 ]
 
+dynamic = ['version']
+
 dependencies = [
-  "scipy==1.8.1",
-  "numpy==1.24.3",
-  "picamera>=1.12",
-  "pidng>=3.4.7",
-  "Pillow>=8.4.0",
-  "PySimpleGUI>=4.55.1",
+  'scipy==1.8.1',
+  'numpy==1.24.3',
+  'picamera>=1.12',
+  'pidng>=3.4.7',
+  'Pillow>=8.4.0',
+  'PySimpleGUI<=4.60.5',
 ]
 
 [project.optional-dependencies]
-dev = ["pip-tools", "pytest", "bumpver"]
+test = [
+  "pytest >=6",
+  "pytest-cov >=3",
+]
+dev = [
+    'nox',
+    'pre-commit',
+]
+docs = [
+  "sphinx>=7.0",
+  "myst_parser>=0.13",
+  "sphinx_copybutton",
+  "sphinx_autodoc_typehints",
+  "furo>=2023.08.17",
+]
 
 [project.urls]
 Homepage = "https://adambaskerville.github.io/tabs/astro/"
 
-[tool.setuptools]
-include-package-data = true
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.run]
+source_pkgs = ['astropitography']
+branch = true
+
+[tool.isort]
+known_first_party = "astropitography"
+profile = "black"
+src_paths = ["src", "tests"]
+
+[tool.mypy]
+cache_dir = ".cache/mypy_cache"
+disallow_incomplete_defs = true
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+disallow_untyped_defs = true
+explicit_package_bases = true
+files = ['src/', 'tests/', 'noxfile.py']
+ignore_missing_imports = true
+mypy_path = 'src'
+namespace_packages = true
+no_implicit_optional = true
+plugins = ['pydantic.mypy']
+warn_redundant_casts =true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_ignores = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+check_untyped_defs = true
+disallow_untyped_decorators = false
+disallow_untyped_defs = false
+module = 'noxfile'
+
+[tool.ruff]
+cache-dir = ".cache/ruff"
+line-length = 88
+src = ["src/astropitography", "tests"]
+namespace-packages = ["src/astropitography"]
+respect-gitignore = true
+show-fixes = true
+select = [ # https://beta.ruff.rs/docs/rules/
+    # "A",  # flake8-builtins
+    # "ARG", # flake8-unused-arguments
+    "B", # flake8-bugbear
+    # "BLE", # flake8-blind-except
+    "COM", # flake8-commas
+    "C4", # flake8-comprehensions
+    # "C90", # mccabe
+    # "D", # pydocstyle
+    "DTZ", # flake8-datetimz
+    "E",  # pycodestyle error
+    # "ERA", # eradicate
+    "F", # Pyflakes
+    # "G", # flake8-logging-format
+    "I", # isort
+    # "ISC", # flake8-implicit-str-concat
+    # "N", # pep8-naming
+    # "NPY", # NumPy-specific rules
+    "Q", # flake8-quotes
+    "PD", # pandas-vet
+    # "PIE", # flake8-pie
+    # "PL", # Pylint
+    # "PT", # flake8-pytest-style
+    # "PTH", # flake8-use-pathlib
+    "RSE",  # flake8-raise
+    "RUF", # Ruff-specific rules
+    "S", # flake8-bandit
+    # "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "TID", # flake8-tidy-imports
+    # "TRY", # tryceratops
+    "T20", # flake8-print
+    "UP", # pyupgrade
+    "W", # pycodestyle warning
+    "YTT", # flake8-2020
+]
+
+[tool.setuptools_scm]
+local_scheme = "dirty-tag"
+write_to = "src/astropitography/version.py"
 
 [tool.setuptools.packages.find]
 namespaces = true
@@ -65,4 +180,3 @@ exclude = ["tests*", "images*", "AstroPitography_GUI.png", "AstroPitographyLogoS
 
 [project.scripts]
 astropitography = "astropitography.__main__:main"
-

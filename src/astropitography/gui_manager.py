@@ -1,7 +1,9 @@
 import io
 import os
 import sys
+from typing import Optional, Tuple
 
+import picamera
 import PySimpleGUI as sg
 from PIL import Image
 
@@ -345,19 +347,9 @@ class GUIManager:
 
         return layout
 
-    def create_window(self, picam_manager):
+    def create_window(self, picam_manager) -> None:
         """
         This is the function that builds the GUI window using a supplied layout
-
-        Parameters
-        ----------
-        layout : List[List[Element]]
-                A list containing all the objects that are to be displayed in the GUI
-
-        Returns
-        -------
-        window : Window object
-                The GUI window with al lspecified elements displayed
         """
 
         # create a new layout given the GUI settings and default camera settings
@@ -381,7 +373,7 @@ class GUIManager:
 
         self.window = window
 
-    def create_image_window(image):
+    def create_image_window(image) -> None:
         """
         This is the function that builds the image window to show the last image
 
@@ -402,14 +394,19 @@ class GUIManager:
         """
         # set the default size of the last image and image window
         image_window_size = (640, 480)
+
         # open the original raw image
         pil_image = Image.open(image)
+
         # resize the image so it can be previewed and does not cover the entire screen
         resizedImage = pil_image.resize(image_window_size, Image.ANTIALIAS)
+
         # create a bytes object
         png_bio = io.BytesIO()
+
         # save the image as a png image
         resizedImage.save(png_bio, format="PNG")
+
         # create the data which will be displayed in pysimplegui
         png_data = png_bio.getvalue()
 
@@ -432,9 +429,9 @@ class GUIManager:
         # give the window a title
         window = sg.Window("Last Image", layout, location=(1280, 0))
 
-    def _pad(resolution, width=32, height=16):
+    def _pad(resolution: Tuple, width: int = 32, height: int = 16) -> Tuple[Tuple[int]]:
         """
-        pads the specified resolution up to the nearest multiple of *width* and *height*
+        Pads the specified resolution up to the nearest multiple of *width* and *height*
         this is needed because overlays require padding to the camera's block size (32x16)
 
         Parameters
@@ -452,7 +449,6 @@ class GUIManager:
         -------
         resolution_tuple : tuple
                         Tuple containing correctly scaled width and height of the overlay image to use with the live preview
-
         """
 
         return (
@@ -460,24 +456,20 @@ class GUIManager:
             ((resolution[1] + (height - 1)) // height) * height,
         )
 
-    def remove_overlays(camera):
+    def remove_overlays(camera) -> None:
         """
-        This function removes any overlays currently being displayed on the live preview
+        Removes any overlays currently being displayed on the live preview
 
         Parameters
         ----------
         camera : picamera.camera.PiCamera
                 The picamera camera object
-
-        Returns
-        -------
-        None
         """
         # remove all overlays from the camera preview
-        for o in camera.overlays:
-            camera.remove_overlay(o)
+        for overlay in camera.overlays:
+            camera.remove_overlay(overlay)
 
-    def preview_overlay(self, camera=None, resolution=None, overlay=None):
+    def preview_overlay(camera: Optional[picamera.camera.PiCamera]=None, resolution: Optional[Tuple]=None, overlay: Image.Image=None) -> None:
         """
         This function actually overlays the image on the live preview
 
@@ -497,7 +489,7 @@ class GUIManager:
         None
         """
         # remove all overlays
-        self.remove_overlays(camera)
+        remove_overlays(camera)
 
         # pad it to the right resolution
         pad = Image.new("RGBA", self._pad(overlay.size))
