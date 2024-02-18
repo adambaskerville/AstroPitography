@@ -9,7 +9,7 @@ echo "Creating virtualenv"
 
 python -m venv .venv
 .venv/bin/pip install --upgrade pip
-.venv/bin/pip install -e .[dev] --constraint lockfiles/3.10/lockfile.txt
+.venv/bin/pip install -e .[dev] --constraint pinned-versions/3.10/lockfile.txt
 
 
 popd # return to original directory

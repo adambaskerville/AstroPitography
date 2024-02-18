@@ -4,12 +4,12 @@ from typing import Optional
 
 import nox
 
-SUPPORTED_PYTHON_VERSIONS = ["3.11"]
+SUPPORTED_PYTHON_VERSIONS = ["3.10"]
 
 nox.options.envdir = ".cache/nox"
 nox.options.reuse_existing_virtualenvs = False
 nox.options.default_venv_backend = "virtualenv"
-nox.options.sessions = ["formatting_check-3.11", "typing_check-3.11", "tests_run_latest-3.11"]
+nox.options.sessions = ["formatting_check-3.10", "typing_check-3.10", "tests_run_latest-3.10"]
 
 SOURCE_FILES = ("src/", "tests/", "noxfile.py")
 
@@ -53,7 +53,7 @@ def coverage_report(session: nox.Session) -> None:
     the coverage data files should be provided as posarg.
 
     Examples:
-        nox -s coverage_report-3.11 -- .coverage/3.11
+        nox -s coverage_report-3.10 -- .coverage/3.10
     """
 
     session.install(*COVERAGE_TOOLS)
@@ -82,7 +82,7 @@ def coverage_build_badge(session: nox.Session) -> None:
     the final .coverage data file should be provided as posarg.
 
     Examples:
-        nox -s coverage_build_badge-3.11 -- .coverage/3.11
+        nox -s coverage_build_badge-3.10 -- .coverage/3.10
     """
 
     # coverage-badge only works from the same directory where the .coverage
@@ -112,7 +112,7 @@ def dist_build(session: nox.Session) -> None:
             https://pypa-build.readthedocs.io/en/latest/
 
     Examples:
-        nox -s dist_build-3.11
+        nox -s dist_build-3.10
     """
 
     session.run("rm", "-rf", "dist", external=True)
@@ -125,7 +125,7 @@ def docs_build(session: nox.Session) -> None:
     """Build sphinx documentation and API docs.
 
     Examples:
-        nox -s docs_build-3.11
+        nox -s docs_build-3.10
     """
 
     lockfile_path = resolve_lockfile_path(python_version=session.python)
@@ -152,7 +152,7 @@ def formatting_check(session: nox.Session) -> None:
     """Check codebase formatting.
 
     Examples:
-        nox -s formatting_check-3.11
+        nox -s formatting_check-3.10
     """
     session.install(*FORMATTING_TOOLS)
     session.run("black", "--check", "--diff", ".")
@@ -163,7 +163,7 @@ def formatting_fix(session: nox.Session) -> None:
     """Fix codebase formatting.
 
     Examples:
-        nox -s formatting_fix-3.11
+        nox -s formatting_fix-3.10
     """
     session.install(*FORMATTING_TOOLS)
     session.run("black", ".")
@@ -174,7 +174,7 @@ def linting_check(session: nox.Session) -> None:
     """Check codebase lint quality.
 
     Examples:
-        nox -s linting_check-3.11
+        nox -s linting_check-3.10
     """
     session.install(*LINTING_TOOLS)
     session.run("ruff", "check", *session.posargs, *SOURCE_FILES)
@@ -185,7 +185,7 @@ def linting_fix(session: nox.Session) -> None:
     """Fix codebase lint quality where possible.
 
     Examples:
-        nox -s linting_fix-3.11
+        nox -s linting_fix-3.10
     """
     session.install(*LINTING_TOOLS)
     session.run("ruff", "--fix", *session.posargs, *SOURCE_FILES)
@@ -196,8 +196,8 @@ def typing_check(session: nox.Session) -> None:
     """Check codebase type annotations.
 
     Examples:
-        nox -s typing_check-3.11
-        nox -s typing_check-3.11 -- --python-version 3.11
+        nox -s typing_check-3.10
+        nox -s typing_check-3.10 -- --python-version 3.10
     """
 
     lockfile_path = resolve_lockfile_path(python_version=session.python)
@@ -241,8 +241,8 @@ def dependencies_pin(session: nox.Session, extra: Optional[str]) -> None:
     """Generate pinned dependencies lockfiles.
 
     Examples:
-        nox -s dependencies_pin-3.11
-        nox -s "dependencies_pin-3.11(extra=None)"
+        nox -s dependencies_pin-3.10
+        nox -s "dependencies_pin-3.10(extra=None)"
     """
     output_lockfile_path = resolve_lockfile_path(python_version=session.python, extra=extra)
     generate_lockfile(session, extra=extra, lockfile_path=output_lockfile_path)
@@ -301,8 +301,8 @@ def tests_run_latest(session: nox.Session, extra: Optional[str]) -> None:
     """Run tests against latest available dependencies.
 
     Examples:
-        nox -s tests_run_latest-3.11
-        nox -s "tests_run_latest-3.11(extra=None)"
+        nox -s tests_run_latest-3.10
+        nox -s "tests_run_latest-3.10(extra=None)"
     """
     # Generate a scratch lock file with latest resolved dependencies
     #
@@ -323,8 +323,8 @@ def tests_run_pinned(session: nox.Session, extra: Optional[str]) -> None:
     by running the `dependencies_pin` session.
 
     Examples:
-        nox -s tests_run_pinned-3.11
-        nox -s "tests_run_pinned-3.11(extra=None)"
+        nox -s tests_run_pinned-3.10
+        nox -s "tests_run_pinned-3.10(extra=None)"
     """
     expected_lockfile_path = resolve_lockfile_path(python_version=session.python, extra=extra)
     run_tests(session, *session.posargs, extra=extra, lockfile_path=expected_lockfile_path, notify=True)

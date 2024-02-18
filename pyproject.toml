@@ -13,7 +13,7 @@ classifiers = [
     'Operating System :: Raspberry Pi',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.10',
     'Typing :: Typed',
 ]
 

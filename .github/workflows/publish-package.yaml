@@ -10,15 +10,15 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Set up Python 3.11
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
           cache: 'pip'
       - name: Build package
         run: |
           pip install nox
-          nox -s dist_build-3.11
+          nox -s dist_build-3.10
       - name: Deploy package
         env:
           EXS_PYPI_TOKEN: ${{ secrets.EXS_PYPI_TOKEN }}
