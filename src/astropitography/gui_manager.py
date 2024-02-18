@@ -456,7 +456,7 @@ class GUIManager:
             ((resolution[1] + (height - 1)) // height) * height,
         )
 
-    def remove_overlays(camera) 0> None:
+    def remove_overlays(camera) -> None:
         """
         Removes any overlays currently being displayed on the live preview
 
