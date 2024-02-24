@@ -28,6 +28,7 @@ I will push some more changes soon which are going to improve the code structure
 * [About AstroPitography](#about-astropitography)
   * [Dependencies](#dependencies)
   * [Necessary Hardware](#necessary-hardware)
+* [Comprehensive Guide](#comprehensive-guide)
 * [Getting Started](#getting-started)
 * [Starting From Scratch](#starting-from-scratch)
 * [Dependencies](#dependencies)
