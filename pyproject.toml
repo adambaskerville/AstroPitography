@@ -62,7 +62,6 @@ dependencies = [
   'pidng>=3.4.7',
   'Pillow>=8.4.0',
   'PySimpleGUI<=4.60.5',
-  'sphinx==7.2.6',
 ]
 
 [project.optional-dependencies]
