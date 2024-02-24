@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/adambaskerville/AstroPitography">
-    <img src="https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/AstroPitographyLogoSmall.png" alt="Logo" width="80" height="80">
+    <img src="https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/AstroPitographyLogoSmall.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">AstroPitography</h3>
