@@ -14,46 +14,14 @@ from astropitography.tetra3 import Tetra3
 from astropitography.camera_manager import PiCamManager
 from astropitography.gui_manager import GUIManager
 
-
-def resize_preview(event: str, camera_obj: picamera.PiCamera, res_counter: int, resolution_list: List[str]) -> None:
-    """
-    Resize the preview window
-
-    Parameters
-    ----------
-    event : str
-        The event being pressing of the + button to increase the size of the window or - to decrease the size of the window
-    camera_obj : picamera.PiCamera
-        The PiCamera object to resize
-    res_counter : int
-        Keep track of which resolution is currently being used
-    resolution_list : List[str]
-        The available resolutions to iterate through
-    """
-    if "+" in event:
-        res_counter = min(res_counter + 1, len(resolution_list) - 1)
-    else:
-        res_counter = max(res_counter - 1, 0)
-
-    width, height = [
-        int(num) for num in (resolution_list[res_counter]).split() if num.isdigit()
-    ]
-
-    # restart the preview with the new specified resolution
-    camera_obj.start_preview(
-        resolution=(width, height),
-        fullscreen=False,
-        window=(0, 0, width, height),
-    )
-    # add a short pause to allow the preview to load correctly
-    time.sleep(1)
-
-
 def run() -> None:
     """
-    This is the main function that controls the entire program. It has all been wrapped inside a function for easy exit of the various options using a function return
+    This is the main function that controls the entire program. It has all been wrapped 
+    inside a function for easy exit of the various options using a function return
 
-    It has no explicit inputs or returns. Its main purpose is to allow the while loop to run and for pysimplegui to keep the window open whilst showing a live feed of what the camera is seeing.
+    It has no explicit inputs or returns. Its main purpose is to allow the while loop to
+    run and for pysimplegui to keep the window open whilst showing a live feed of what 
+    the camera is seeing.
 
     Parameters
     ----------
@@ -86,22 +54,17 @@ def run() -> None:
     if not os.path.isdir(vid_save_directory):
         os.mkdir(vid_save_directory)
 
-    # list of resolutions to view the live preview
-    resolution_list: List[str] = config.RESOLUTION_OPTIONS
-
-    # extract out the width and height from the resolution individually
-    width, height = [int(num) for num in (resolution_list[0]).split() if num.isdigit()]
-
+    preview_width, preview_height = picam_manager.preview_size
+    
     # start the preview
     with picamera.PiCamera(resolution=(3280, 2464)) as camera:
         picam_manager.camera = camera
         camera.start_preview(
-            resolution=(1440, 1080), fullscreen=False, window=(0, 0, 640, 480)
+            resolution=(1440, 1080), fullscreen=False, window=(0, 0, preview_width, preview_height)
         )
         time.sleep(1)
 
-        # set a counter to be able to iterate through the resolution options
-        res_counter: int = 0
+
         while True:
             # setup the events and values which the GUI will call and modify
             gui_manager.window, event, values = sg.read_all_windows(timeout=0)
@@ -146,18 +109,14 @@ def run() -> None:
                 camera.close()
                 # close the GUI window
                 gui_manager.window.close()
+                
                 return
-
-            # changes the size of the live preview window
-            if "Resize" in event:
-                resize_preview(event, camera, res_counter, resolution_list)
 
             if event == "Crosshair On":
                 img = Image.open(Path(__file__).parent / "crosshair.png").convert(
                     "RGBA"
                 )
-
-                gui_manager.preview_overlay(camera, (width, height), img)
+                gui_manager.preview_overlay(camera=camera, resolution=(preview_width, preview_height), overlay=img)
 
             if event == "Crosshair Off":
                 gui_manager.remove_overlays(camera)
@@ -171,7 +130,7 @@ def run() -> None:
                 picam_manager.capture_image(gui_manager, values, img_save_directory)
 
             # reset the camera settings to the default values
-            if event == "Defaults":
+            if event == "Set to Defaults":
                 picam_manager.reset_to_default()
 
                 gui_manager.window["brightness_slider"].update(picam_manager.brightness)

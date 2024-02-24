@@ -62,15 +62,6 @@ dependencies = [
   'pidng>=3.4.7',
   'Pillow>=8.4.0',
   'PySimpleGUI<=4.60.5',
-  'sphinx!=5.1.0',
-  'sphinx-sitemap',
-  'sphinx-inline-tabs',
-  'sphinx-book-theme',
-  'sphinx_design',
-  'sphinx-toolbox',
-  'sphinx_togglebutton',
-  'jupytext>=1.11.2',
-  'myst-nb',
 ]
 
 [project.optional-dependencies]
@@ -83,11 +74,16 @@ dev = [
     'pre-commit',
 ]
 docs = [
-  "sphinx>=7.0",
-  "myst_parser>=0.13",
-  "sphinx_copybutton",
-  "sphinx_autodoc_typehints",
-  "furo>=2023.08.17",
+    'sphinx!=5.1.0',
+    'sphinx-sitemap',
+    'sphinx-inline-tabs',
+    'sphinx-book-theme',
+    'sphinx_design',
+    'sphinx-toolbox',
+    'sphinx_togglebutton',
+    'jupytext>=1.11.2',
+    'myst-nb',
+    'screeninfo'
 ]
 
 [project.urls]

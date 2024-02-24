@@ -6,7 +6,7 @@ from typing import Optional, Union, Tuple
 import picamera
 from pidng.core import RPICAM2DNG
 
-from astropitography.settings import SCREEN_HEIGHT
+from astropitography.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class PiCamManager:
@@ -16,6 +16,14 @@ class PiCamManager:
         """
         self.camera: Optional[picamera.PiCamera] = None
 
+        # calculate the aspect ratio
+        aspect_ratio = SCREEN_WIDTH / SCREEN_HEIGHT
+
+        # scale the width in order to set the width of the live preview
+        preview_width = int(SCREEN_WIDTH  / 2)
+
+        # scale the height in order to set the height of the live preview
+        preview_height = int(SCREEN_WIDTH / aspect_ratio)
 
         # default values for the camera
         self.brightness: int = 50
@@ -27,7 +35,7 @@ class PiCamManager:
         self.time_step: int = 2
         self.vid_time: int = 10
         self.image_size: Tuple[int, int] = (int(SCREEN_HEIGHT / 2), int(SCREEN_HEIGHT / 2))
-        self.preview_size: Tuple[int, int] = (int(SCREEN_HEIGHT / 2), int(SCREEN_HEIGHT / 2))
+        self.preview_size: Tuple[int, int] = (preview_width, preview_height)
         self.last_image: Path = Path(__file__).parent / "blackimage.png"
         self.default_settings = {
             "brightness": 50,
