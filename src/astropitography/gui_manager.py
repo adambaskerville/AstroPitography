@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 import picamera
 import PySimpleGUI as sg
 from PIL import Image
-
+from pathlib import Path
 from astropitography.settings import SCREEN_WIDTH
 
 
@@ -186,17 +186,6 @@ class GUIManager:
             ],
             [
                 sg.Button(
-                    "- Resize -", size=(10, 1), font="Helvetica 14", pad=(0, self.pad_y)
-                ),
-                sg.Button(
-                    "+ Resize +",
-                    size=(10, 1),
-                    font="Helvetica 14",
-                    pad=(self.pad_x, self.pad_y),
-                ),
-            ],
-            [
-                sg.Button(
                     "Crosshair On",
                     size=(10, 1),
                     font="Helvetica 14",
@@ -211,7 +200,7 @@ class GUIManager:
             ],
             [
                 sg.Button(
-                    "Set to Default",
+                    "Set to Defaults",
                     size=(10, 1),
                     font="Helvetica 14",
                     pad=(0, self.pad_y),
@@ -351,7 +340,6 @@ class GUIManager:
         """
         This is the function that builds the GUI window using a supplied layout
         """
-
         # create a new layout given the GUI settings and default camera settings
         layout = self.create_layout(picam_manager)
 
@@ -373,7 +361,7 @@ class GUIManager:
 
         self.window = window
 
-    def create_image_window(image) -> None:
+    def create_image_window(self, image) -> None:
         """
         This is the function that builds the image window to show the last image
 
@@ -399,7 +387,7 @@ class GUIManager:
         pil_image = Image.open(image)
 
         # resize the image so it can be previewed and does not cover the entire screen
-        resizedImage = pil_image.resize(image_window_size, Image.ANTIALIAS)
+        resizedImage = pil_image.resize(image_window_size, Image.LANCZOS)
 
         # create a bytes object
         png_bio = io.BytesIO()
@@ -428,8 +416,23 @@ class GUIManager:
 
         # give the window a title
         window = sg.Window("Last Image", layout, location=(1280, 0))
+        
+        event, values = window.read()
+        
+        while True:
+            if event == "Return":
+                window.close()
+                
+                break
+                
+            if event == "Delete":
+                Path(image).unlink()
+                
+                break
+        
+        window.close()
 
-    def _pad(resolution: Tuple, width: int = 32, height: int = 16) -> Tuple[Tuple[int]]:
+    def _pad(self, resolution: Tuple, width: int = 32, height: int = 16) -> Tuple[Tuple[int]]:
         """
         Pads the specified resolution up to the nearest multiple of *width* and *height*
         this is needed because overlays require padding to the camera's block size (32x16)
@@ -456,7 +459,7 @@ class GUIManager:
             ((resolution[1] + (height - 1)) // height) * height,
         )
 
-    def remove_overlays(camera) -> None:
+    def remove_overlays(self, camera) -> None:
         """
         Removes any overlays currently being displayed on the live preview
 
@@ -471,7 +474,7 @@ class GUIManager:
 
     def preview_overlay(self, camera: Optional[picamera.camera.PiCamera]=None, resolution: Optional[Tuple]=None, overlay: Image.Image=None) -> None:
         """
-        This function actually overlays the image on the live preview
+        This function overlays the image on the live preview
 
         Parameters
         ----------
