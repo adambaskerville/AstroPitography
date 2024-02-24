@@ -74,6 +74,9 @@ _These are not endorsements or sponsors, just where I purchased them from_
 
 In theory any Raspberry Pi should work, along with the other various Raspberry Pi cameras.
 
+## Comprehensive Guide
+If you are looking for a guide on how to setup your Raspberry Pi from scratch with everything explained then please visit the new [comprehensive guide](https://github.com/adambaskerville/AstroPitography/blob/main/docs/source/pages/installation/CompleteGuide.md)
+
 <!-- GETTING STARTED -->
 ## Getting Started
 Before installing the package, it is highly recommended that AstroPitography is used in a virtual environment due to the specific versions used for SciPy and numpy. We will use the `virtualenv` module instead of Python's built-in `venv` module, although both are completely viable options.
