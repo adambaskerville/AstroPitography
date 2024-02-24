@@ -37,7 +37,7 @@ I will push some more changes soon which are going to improve the code structure
 <!-- ABOUT THE PROJECT -->
 ## About AstroPitography
 
-![AstroPitography](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/AstroPitography_GUI.png)
+![AstroPitography](https://raw.githubusercontent.com/adambaskerville/AstroPitography/main/images/AstroPitography_GUI.png)
 
 Astrophotography is typically costly due to equipment like scopes, mounts, cameras, and accessories. Despite this, I've always enjoyed pushing the limits of more modest hardware to explore its potential. With the release of the £50 Raspberry Pi High Quality camera, I aimed to test its capabilities in astrophotography. While it can't surpass top-tier DSLRs or expensive ZWO cameras in performance, I wanted to explore its potential. To facilitate this, I developed a straightforward Python program that serves as a basic GUI for my telescope outings.
 
